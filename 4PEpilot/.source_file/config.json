@@ -1,0 +1,10 @@
+{
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"root",
+  "password":"",
+  "database":"novodb",
+  "tmp_dir":"/tmp"
+}
+
