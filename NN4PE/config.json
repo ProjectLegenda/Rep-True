@@ -1,0 +1,10 @@
+{
+  "db_connect_type":"hive",
+  "server":"localhost",
+  "server_port":10000,
+  "user":"",
+  "password":"",
+  "database":"default",
+  "tmp_dir":"/tmp"
+}
+
