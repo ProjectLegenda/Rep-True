@@ -6,6 +6,10 @@
   "password":"Novo$123",
   "database":"novodb",
   "tmp_dir":"/tmp",
-  "auth":"CUSTOM"
+  "auth":"CUSTOM",
+  "tag":"tag",
+  "similar":"tag_similar_words",
+  "wechat":"webchat_content_view",
+  "web":"pc_data"
 }
 

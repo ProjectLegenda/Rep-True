@@ -18,7 +18,7 @@ def checkKey():
     loaded_dict = getJsonDict()    
 
     ##necessary keys
-    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir','auth']
+    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir','auth','tag','similar','wechat','web']
 
 ##check if the necessary keys in config Json
     for item in keys:
@@ -71,4 +71,9 @@ def getConn():
 
 
 def getTmpdir():
+    parseValue()
     return(loaded_dict['tmp_dir'])
+
+def getTable(tab_name):
+    parseValue() 
+    return(loaded_dict[tab_name])

@@ -25,3 +25,6 @@ def write_table(data_frame,table_name):
     ##execute hive_sql
     result=conn.execute(hive_sql_)
     result.close()
+
+def getTable(tab_name):
+    return nnenv.getTable(tab_name)

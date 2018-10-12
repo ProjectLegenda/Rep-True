@@ -362,12 +362,12 @@ def readingHist(webHistWithoutTokens, wechathistWithoutTokens, contentLabeled):
     return res
 
 def main():
-    tag = nn.read_table("tag")
-    similar = nn.read_table("tag_similar_words")
+    tag = nn.read_table(nn.getTable("tag"))
+    similar = nn.read_table(nn.getTable("similar"))
     mapping =  mappingCbind(similar,tag)
     createDictStop()
-    wechat = nn.read_table("webchat_content_view")
-    web = nn.read_table("pc_data")
+    wechat = nn.read_table(nn.getTable("wechat"))
+    web = nn.read_table(nn.getTable("web"))
 
     # 五部分数据：
     # wechatFilterd, webFilterd用于渠道分析计算
