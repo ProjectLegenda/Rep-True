@@ -3,8 +3,9 @@
   "server":"clusternode3",
   "server_port":10000,
   "user":"root",
-  "password":"",
+  "password":"Novo$123",
   "database":"novodb",
-  "tmp_dir":"/tmp"
+  "tmp_dir":"/tmp",
+  "AUTH":"CUSTOM"
 }
 

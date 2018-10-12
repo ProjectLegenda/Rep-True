@@ -18,7 +18,7 @@ def checkKey():
     loaded_dict = getJsonDict()    
 
     ##necessary keys
-    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir']
+    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir','auth']
 
 ##check if the necessary keys in config Json
     for item in keys:
@@ -49,11 +49,17 @@ def parseValue():
 def getConnectable():
     parseValue()
     connectable=loaded_dict['db_connect_type'] + '://' \
+    + loaded_dict['user']\
+    + ':'\
+    + loaded_dict['password']\
+    + '@'\
     + loaded_dict['server']\
     + ':' \
     + str(loaded_dict['server_port']) \
     + '/'\
-    + loaded_dict['database']
+    + loaded_dict['database']\
+    + '?auth='\
+    + loaded_dict['auth']
     return(connectable)
 
 #get conn for Pandas

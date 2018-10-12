@@ -1,0 +1,2 @@
+import pilot
+pilot.main()
