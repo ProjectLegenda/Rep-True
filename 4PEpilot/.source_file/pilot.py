@@ -398,9 +398,15 @@ def main():
 
     #return output1,output2,output3,output4
 
-    output1.to_csv('output1')
-    output2.to_csv('output2')
-    output3.to_csv('output3')
-    output4.to_csv('output4')
+    #output1.to_csv('output1')
+    #output2.to_csv('output2')
+    #output3.to_csv('output3')
+    #output4.to_csv('output4')
+    
+    nn.write_table(outout1,nn.getTable('channel_preference'))
+    nn.write_table(output2,nn.getTable('content_interest'))
+    nn.write_table(output3,nn.getTable('content_interest_keyword'))
+    nn.write_table(output3,nn.getTable('reading_history'))
+    
 
 
