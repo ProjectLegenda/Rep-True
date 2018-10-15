@@ -2,7 +2,7 @@
   "db_connect_type":"hive",
   "server":"clusternode3",
   "server_port":10000,
-  "user":"admin4PEDWC",
+  "user":"admin4PEdwc",
   "password":"whateever",
   "database":"novodb",
   "tmp_dir":"/tmp",
