@@ -69,13 +69,8 @@ def getConn():
     conn=hive.Connection(host=loaded_dict['server'],port=loaded_dict['server_port'],username=loaded_dict['user'],database=loaded_dict['database'])   
     return(conn) 
 
-
-def getTmpdir():
-    parseValue()
-    return(loaded_dict['tmp_dir'])
-
-def getTable(tab_name):
+def getValue(key):
     parseValue() 
     ##if tab_name not in ['tab','similar','wechat','web','mappingword','stopword']:
     ##    raise ValueError('Input table must be in tag|similar|wechat|web')
-    return(loaded_dict[tab_name])
+    return(loaded_dict[key])

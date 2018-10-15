@@ -15,7 +15,7 @@ def write_table(data_frame,table_name):
     ##initlize data engine
     engine=create_engine(nnenv.getConnectable())
     ##write data frame to csv tmp file
-    path_tmp_file=nnenv.getTmpdir() + '/' + table_name
+    path_tmp_file=nnenv.getValue('tmp_dir') + '/' + table_name
     data_frame.to_csv(path_tmp_file, index=False,header=False)
     ##connect database
     conn=engine.connect() 
@@ -27,4 +27,4 @@ def write_table(data_frame,table_name):
     result.close()
 
 def getTable(tab_name):
-    return nnenv.getTable(tab_name)
+    return nnenv.getValue(tab_name)
