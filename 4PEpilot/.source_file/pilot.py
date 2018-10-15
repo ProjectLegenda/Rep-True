@@ -42,7 +42,7 @@ def createDictStop():
     dic = nn.read_table(nn.getTable("mappingword"))
     stopWord = nn.read_table(nn.getTable("stopword"))
     word = dic.word.tolist()   
-    stopWord = stopWord.stopword.tolist()
+    stopWord = stopWord.word.tolist()
     jieba.re_han_default =re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
     frequnecy = 1000000000000000000000
     # Add words to dictionary
@@ -403,7 +403,7 @@ def main():
     #output3.to_csv('output3')
     #output4.to_csv('output4')
     
-    nn.write_table(outout1,nn.getTable('channel_preference'))
+    nn.write_table(output1,nn.getTable('channel_preference'))
     nn.write_table(output2,nn.getTable('content_interest'))
     nn.write_table(output3,nn.getTable('content_interest_keyword'))
     nn.write_table(output3,nn.getTable('reading_history'))
