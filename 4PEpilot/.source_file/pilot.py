@@ -209,7 +209,7 @@ def calContInst(taggedDf, hcp_id):
     contentInsteret['ratio'] = contentInsteret['ratio'].apply( lambda x:"{0:.0%}".format(x/total))
     contentInsteret['open_id'] = open_id
     contentInsteret['hcp_id'] = hcp_id
-    contentInsteret['last_update'] = pd.Timestamp("now").strftime("%m/%d/%Y %H:%M:%S")
+    contentInsteret['last_update'] = pd.Timestamp("now").strftime("%Y-%m-%d %H:%M:%S")
     contentInsteret['id'] = contentInsteret.index +1
     outputVar =['id','open_id','hcp_id','content_interest','ratio','last_update']
     contentInsteret = contentInsteret[outputVar]
@@ -252,7 +252,7 @@ def calContKeyWord(taggedDf,hcp_id,lb,other_tag,mapping,keytable):
         df_join.reset_index(inplace=True)
         df_join.rename(columns={"index": "keyword"},inplace=True)
         df_join.sort_values(by=['keyword_count'],ascending=False,inplace=True)
-        df_join['last_update'] = pd.Timestamp("now").strftime("%m/%d/%Y %H:%M:%S")
+        df_join['last_update'] = pd.Timestamp("now").strftime("%Y-%m-%d %H:%M:%S")
         df_join['content_interest_id'] = key
         keywordCnt = keywordCnt.append(df_join,ignore_index=True)
     keywordCnt["hcp_id"] = hcp_id
@@ -406,7 +406,7 @@ def main():
     nn.write_table(output1,nn.getTable('channel_preference'))
     nn.write_table(output2,nn.getTable('content_interest'))
     nn.write_table(output3,nn.getTable('content_interest_keyword'))
-    nn.write_table(output3,nn.getTable('reading_history'))
+    nn.write_table(output4,nn.getTable('reading_history'))
     
 
 
