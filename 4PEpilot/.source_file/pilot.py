@@ -39,8 +39,8 @@ def createDictStop():
     print("Loading Dictionary and Stopwords")
     global stopWord    
     #dic_path = ''
-    dic = nn.read_table("mappingwordfinal")
-    stopWord = nn.read_table("stopwordfinal")
+    dic = nn.read_table(nn.getTable("mappingword"))
+    stopWord = nn.read_table(nn.getTable("stopword"))
     word = dic.word.tolist()   
     stopWord = stopWord.stopword.tolist()
     jieba.re_han_default =re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)

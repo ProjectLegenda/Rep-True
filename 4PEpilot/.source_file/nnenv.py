@@ -8,7 +8,7 @@ import os
 ##Read Json file in dictionary ./
 def getJsonDict():
     etc_dir = os.environ.get('ALGORITHM_HOME')
-    with open( str(etc_dir) + '/etc/config.json','r') as loaded_f:
+    with open( str(etc_dir) + '/./etc/config.json','r') as loaded_f:
         loaded_dict = json.load(loaded_f)
     return(loaded_dict)
 ##def get_sqlalchemy_conn(jsonfile):
@@ -18,7 +18,7 @@ def checkKey():
     loaded_dict = getJsonDict()    
 
     ##necessary keys
-    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir','auth','tag','similar','wechat','web']
+    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir','auth']
 
 ##check if the necessary keys in config Json
     for item in keys:
@@ -76,6 +76,6 @@ def getTmpdir():
 
 def getTable(tab_name):
     parseValue() 
-    if loaded_dict[tab_name] not in ['tab','similar','wechat','web']:
-        raise ValueError('Input table must be in tag|similar|wechat|web')
+    ##if tab_name not in ['tab','similar','wechat','web','mappingword','stopword']:
+    ##    raise ValueError('Input table must be in tag|similar|wechat|web')
     return(loaded_dict[tab_name])

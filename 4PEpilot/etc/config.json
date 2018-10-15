@@ -9,7 +9,13 @@
   "auth":"CUSTOM",
   "tag":"tag",
   "similar":"tag_similar_words",
-  "wechat":"webchat_content_view",
-  "web":"pc_data"
+  "wechat":"itangyi_wechat_hcp_content_view",
+  "web":"itangyi_web_hcp_contentview",
+  "mappingword":"iqvia_mappingwordfinal",
+  "stopword":"iqvia_stopwordfinal",
+  "channel_preference":"cal_hcp_channel_preference",
+  "content_interest":"cal_hcp_content_interest",
+  "content_interest_keyword":"cal_hcp_content_interest_keyword",
+  "reading_history":"cal_hcp_reading_history"
 }
 
