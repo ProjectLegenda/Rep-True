@@ -76,4 +76,6 @@ def getTmpdir():
 
 def getTable(tab_name):
     parseValue() 
+    if loaded_dict[tab_name] not in ['tab','similar','wechat','web']:
+        raise ValueError('Input table must be in tag|similar|wechat|web')
     return(loaded_dict[tab_name])
