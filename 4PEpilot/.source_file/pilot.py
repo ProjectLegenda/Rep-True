@@ -359,6 +359,7 @@ def readingHist(webHistWithoutTokens, wechathistWithoutTokens, contentLabeled):
     
     res = allHistWithLv2Tags.rename(columns={"hcp_openid_u_2":"open_id", "doctorid":"hcp_id", "二级标签":"content_keyword", "start_date":"browser_time"})
     res["content_keyword"] = res["content_keyword"].apply(lambda x: ' '.join(x))
+    res.sort_values(by="browser_time",ascending=False,inplace = True).drop_duplicates(subset="content_title",inplace=True)
     return res
 
 def main():
