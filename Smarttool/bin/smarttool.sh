@@ -1,6 +1,11 @@
 #!/bin/bash
 #shell script for launching algorithm,mainly setting up enviorment for python lib
 
+#PYTHON BINARY location
+
+export PYTHONBINARY=/usr/local/bin/python3
+
+
 #ALGORITHM_HOME check
 if [ "$SMARTTOOL_HOME" == "" ];then
    echo "[ERROR]Please setup SMARTTOOL_HOME first before launch algorithm"
@@ -51,5 +56,6 @@ if [ "$3" != "" ];then
 fi
 
 
-#launch the entry of algorithm
-python3 "$SMARTTOOL_HOME/lib/launch.py" $1 $2
+export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/launch.py $1 $2"
+
+eval $COMM
