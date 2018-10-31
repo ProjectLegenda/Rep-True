@@ -1,0 +1,43 @@
+Pre-requisite:
+
+    Install original python3.6.5+ from https://www.python.org
+ 
+    NOTE:Please don't install anaconda or ipython for this tools because original python depend on variable PYTHONPATH when searching for user defined site packages 
+    But others may not, but if you are familiar with all distribution of python, you can install other version of python 
+
+    Install Standard site-package from PyPI and make sure whenever you launch python process and all packages below are accessble without changing sys.path explicitly 
+
+    pandas
+    jieba
+    numpy
+    pyhive
+    sqlalchemy
+    thrift
+
+    export PATH and let shell know where to find your python3 binary
+    
+    example: 
+    export PATH=$PATH:/usr/local/bin
+ 
+
+Installing smarttool project 
+
+    tar -xf Smarttool.tar
+    cd Smarttool 
+
+
+    ##SMARTTOLL_HOME must be set
+    export SMARTTOOL_HOME=`pwd`
+    
+    if you want to refer the smart tool shell script you can add $SMARTTOOL_HOME/bin into your path like 
+    export PATH=$PATH:$SMARTTOOL_HOME/bin
+    
+
+Launching smarttool 
+  
+    $SMARTTOOL_HOME/bin/smarttool.sh input.json output.json
+    ## $1 for smarttool.sh is input json $2 for smarttool.sh is output json file
+
+
+Caveats: 
+    The site package is based on Cython and possibly need to be re-compiled if the enviorment changed 

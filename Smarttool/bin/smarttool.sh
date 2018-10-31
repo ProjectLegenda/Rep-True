@@ -1,10 +1,10 @@
 #!/bin/bash
-#shell script for launching algorithm,mainly setting up enviorment for python lib
 
+
+#if you don't want your shell know where your python3 is, you can change PYTHONBINARY to the path whever you install python3
 #PYTHON BINARY location
 
-export PYTHONBINARY=/usr/local/bin/python3
-
+export PYTHONBINARY=python3
 
 #ALGORITHM_HOME check
 if [ "$SMARTTOOL_HOME" == "" ];then
@@ -56,6 +56,7 @@ if [ "$3" != "" ];then
 fi
 
 
+#launch the entry of algorithm
 export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/launch.py $1 $2"
 
 eval $COMM
