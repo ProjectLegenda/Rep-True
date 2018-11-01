@@ -1,7 +1,6 @@
 #!/bin/bash
+#shell script for launching algorithm,mainly setting up enviorment for python lib
 
-
-#if you don't want your shell know where your python3 is, you can change PYTHONBINARY to the path whever you install python3
 #PYTHON BINARY location
 
 export PYTHONBINARY=python3
