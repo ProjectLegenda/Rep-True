@@ -37,7 +37,7 @@ def createDictStop():
     """
     print("Loading Dictionary and Stopwords")
     global stopWord    
-    dic_path = './essential/'
+    dic_path = '../resource/'
     jieba.load_userdict(dic_path + "mappingWordFinal.txt")
     dic = pd.read_csv(dic_path + "mappingWordFinal.txt", engine='python', sep='\r\n')
     word = dic.word.tolist()   
@@ -167,56 +167,65 @@ def calcSimilarity(tfidf,tfidf_matix,title_list,top_n = 5):
     similar_items = sorted([(title_list[i], cosine_similarities[0,i]) for i in similar_indices], key=lambda x: -x[1])
     return similar_items
 
-def main(inputdict):
-    global tfidf_matix
-    createDictStop()
-    tag = pd.read_csv('./essential/tag.csv')
-    similar = pd.read_csv('./essential/tag_similar_words.csv')
-    mapping =  mappingCbind(similar,tag)
-    clf = joblib.load('./output/vectorizer.joblib')  
-    tfidf_matix = np.load('./output/foo.npy')
-    labeled_corpus = pd.read_excel('./essential/labeledContent.xlsx')
-    title_list = labeled_corpus.title.tolist()
+
+
+def Worker(contentqueue,labelqueue):
    
-    df = pd.DataFrame(inputdict,index=[0])
-    df["title_token"]= df.title.apply(segContent)
-    df["all"] = df["title"] + "" + df["content"]
-    df["all_token"] = df["all"].apply(segContent)
-    seg = ' '.join(df["all_token"][0])
+    createDictStop()
+    tag = pd.read_csv('../resource/tag.csv')
+    similar = pd.read_csv('../resource/tag_similar_words.csv')
+    mapping =  mappingCbind(similar,tag)
+    clf = joblib.load('../resource/vectorizer.joblib')  
+    tfidf_matix = np.load('../resource/foo.npy')
+    labeled_corpus = pd.read_excel('../resource/labeledContent.xlsx')
+    title_list = labeled_corpus.title.tolist() 
+    
+    while True:
+        
+        inputtuple = contentqueue.get(block=True)
+        
+        inputdict = inputtuple[1]
+        
+        df = pd.DataFrame(inputdict,index=[0])
+        df["title_token"]= df.title.apply(segContent)
+        df["all"] = df["title"] + "" + df["content"]
+        df["all_token"] = df["all"].apply(segContent)
+        seg = ' '.join(df["all_token"][0])
     
     #title tagging
-    df[['lb','hcp','lv1','lv2']] = df.title_token.apply(labelIt,args=(mapping, ))
-    df['lv2'] = df['lv2'].apply(filterComplication)
+        df[['lb','hcp','lv1','lv2']] = df.title_token.apply(labelIt,args=(mapping, ))
+        df['lv2'] = df['lv2'].apply(filterComplication)
     
-    title_lv1 = df['lv1'][0]
-    title_lv2 = df['lv2'][0]
+        title_lv1 = df['lv1'][0]
+        title_lv2 = df['lv2'][0]
     
     #content tagging
-    tfidf = calcTfidf(seg,clf)
-    similar_items = calcSimilarity(tfidf,tfidf_matix,title_list)
+        tfidf = calcTfidf(seg,clf)
+        similar_items = calcSimilarity(tfidf,tfidf_matix,title_list,1)
     
-    similarTitle = [i[0] for i in similar_items] 
-    similarScore = [i[1] for i in similar_items] 
-    print("Article {} \n has the following similar articles".format(df["title"][0]))
-    print("---------------------------------------")
-    print(*similarTitle,sep = "\n")
-    print("---------------------------------------")
+        similarTitle = [i[0] for i in similar_items] 
+        similarScore = [i[1] for i in similar_items] 
+        #print("Article {} \n has the following similar articles".format(df["title"][0]))
+        #print("---------------------------------------")
+        #print(*similarTitle,sep = "\n")
+        #print("---------------------------------------")
     
-    content_lv1_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv1'].str.split(',').tolist()
-    content_lv2_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv2'].str.split(',').tolist()
-    cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
-    cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
-    content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
-    content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
+        content_lv1_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv1'].str.split(',').tolist()
+        content_lv2_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv2'].str.split(',').tolist()
+        cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
+        cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
+        content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
+        content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
     
     
-    lv1_tags = list(set(content_lv1 + title_lv1))
-    lv2_tags = list(set(content_lv2 + title_lv2))
+        lv1_tags = list(set(content_lv1 + title_lv1))
+        lv2_tags = list(set(content_lv2 + title_lv2))
     
-    out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})
+        out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})
     
-    final = toDictionary(out)
-    print("Done")
-    return final
+        final = toDictionary(out)
+        #print(inputtuple[0])
+        #print(final)
+        labelqueue.put((inputtuple[0],final))
+    
 
-main({'title':'shenmejibapowanyier','content':'jiushi zhege po wanyier'})

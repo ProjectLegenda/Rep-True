@@ -37,7 +37,7 @@ def createDictStop():
     """
     print("Loading Dictionary and Stopwords")
     global stopWord    
-    dic_path = './essential/'
+    dic_path = './resource/'
     jieba.load_userdict(dic_path + "mappingWordFinal.txt")
     dic = pd.read_csv(dic_path + "mappingWordFinal.txt", engine='python', sep='\r\n')
     word = dic.word.tolist()   
@@ -172,12 +172,12 @@ def calcSimilarity(tfidf,tfidf_matix,title_list,top_n = 5):
 def Worker(contentqueue,labelqueue):
    
     createDictStop()
-    tag = pd.read_csv('./essential/tag.csv')
-    similar = pd.read_csv('./essential/tag_similar_words.csv')
+    tag = pd.read_csv('../resource/tag.csv')
+    similar = pd.read_csv('../resource/tag_similar_words.csv')
     mapping =  mappingCbind(similar,tag)
-    clf = joblib.load('./output/vectorizer.joblib')  
-    tfidf_matix = np.load('./output/foo.npy')
-    labeled_corpus = pd.read_excel('./essential/labeledContent.xlsx')
+    clf = joblib.load('../resource/vectorizer.joblib')  
+    tfidf_matix = np.load('../resource/foo.npy')
+    labeled_corpus = pd.read_excel('../resource/labeledContent.xlsx')
     title_list = labeled_corpus.title.tolist() 
     
     while True:
