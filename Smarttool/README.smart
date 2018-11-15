@@ -57,9 +57,12 @@ Smarttool Client:
 
 Shutting down smarttool server:
     
-    Kill process where: ps -ef | grep smarttool
+    If you did not nohup the smartserver,the main process could be shutdown by KeyInterrupt
+    If you nohup the smartserver then only way to shutdown is to:
+        Kill process where: ps -ef | grep smarttool
 
+    # By default 2 process need to be killed, one is main process of smartserver of which main thread is RPC server, another is subprocess for algorithm
 
 Caveats: 
     Enviorment variable SMARTTOOL_HOME must be set 
-    Shutting down Smarttool server gracefully is under development so we need to relay on Linux command kill 
+    Shutting down Smarttool server gracefully is under development so we need to relay on Linux command kill for now 

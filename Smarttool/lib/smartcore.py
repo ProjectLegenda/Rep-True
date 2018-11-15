@@ -179,7 +179,8 @@ def Worker(contentqueue,labelqueue):
     tfidf_matix = np.load('../resource/foo.npy')
     labeled_corpus = pd.read_excel('../resource/labeledContent.xlsx')
     title_list = labeled_corpus.title.tolist() 
-    
+     
+    print('[INFO]algorithm launched, smarttool is ready for serve') 
     while True:
         
         inputtuple = contentqueue.get(block=True)
