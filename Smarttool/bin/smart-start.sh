@@ -37,6 +37,15 @@ if [ ! -f "$SMARTTOOL_HOME/etc/config.json" ];then
 fi 
 echo "[INFO]configuration file checked"
 
+if [ "$1" == "" ];then
+   echo "[ERROR]PLease provide IP address or host"
+   exit
+fi
+
+if [ "$2" == "" ];then
+   echo "[ERROR]Please provide port!"
+   exit
+fi
 
 #launch the entry of algorithm
 export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/smarttool.py $1 $2"

@@ -14,6 +14,7 @@ Pre-requisite:
     sqlalchemy
     thrift
     Cython
+    sklearn
 
     export PATH and let shell know where to find your python3 binary
     
@@ -31,13 +32,14 @@ Installing smarttool project
     export PATH=$PATH:$SMARTTOOL_HOME/bin
     
 
-Launching smarttool 
+Launching smarttool server: 
   
-    $SMARTTOOL_HOME/bin/smarttool.sh input.json output.json
-    ## $1 for smarttool.sh is input json $2 for smarttool.sh is output json file
+    $SMARTTOOL_HOME/bin/smarttool.sh localhost 18000 
+    
+    ## $1 is the IP $2 is the port of smarttool server 
 
 
 Caveats: 
     The site package is based on Cython and possibly need to be re-compiled if the enviorment changed 
     Enviorment variable SMARTTOOL_HOME must be set
-    If the output json already exists, error will be raised.
+    
