@@ -57,7 +57,7 @@ def Getitemfromdict(sseq):
             t = labeldict[sseq][0]
             labeldict.pop(sseq)
             seqlock.release()
-            print('[INFO]Sequence' + chr(sseq) + 'Has been poped out from labeldict')
+            print('[INFO]Sequence' + str(sseq) + 'Has been poped out from labeldict')
             return(t)
         else:
             time.sleep(0.1)

@@ -201,7 +201,7 @@ def Worker(contentqueue,labelqueue):
     
     #content tagging
         tfidf = calcTfidf(seg,clf)
-        similar_items = calcSimilarity(tfidf,tfidf_matix,title_list,1)
+        similar_items = calcSimilarity(tfidf,tfidf_matix,title_list,5)
     
         similarTitle = [i[0] for i in similar_items] 
         similarScore = [i[1] for i in similar_items] 
