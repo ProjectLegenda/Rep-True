@@ -29,7 +29,7 @@ labeldict = {}
 plist = []
 pids = []
 #slave count
-pcnt = 3
+pcnt = 2
 
 def Additemtoqueue(item):
     seqlock.acquire()
@@ -57,31 +57,30 @@ def Getitemfromdict(sseq):
             t = labeldict[sseq][0]
             labeldict.pop(sseq)
             seqlock.release()
+            print('[INFO]Sequence' + chr(sseq) + 'Has been poped out from labeldict')
             return(t)
         else:
-            time.sleep(0.05)
+            time.sleep(0.1)
             trys = trys - 1
             print(trys)
     raise TimeoutError
 
 def garbageCollector(timeout=100):
     while True:
-        
-        time.sleep(timeout)
-         
         seqlock.acquire()        
         t = time.time()
-        keys = []
+        garbagekeys = []
         for x in labeldict:
             if t - labeldict[x][1] > timeout:
-                keys.append(x) 
+                garbagekeys.append(x) 
          
-        for y in keys:
+        for y in garbagekeys:
             labeldict.pop(y)
        
         seqlock.release()
+        time.sleep(timeout)  
         endtime = time.time()
-        #print('[INFO] Garbage collector elpased:',endtime - t)
+        print('[INFO] Garbage collector elpased:',endtime - t)
         
 
 
@@ -115,7 +114,7 @@ def init(host,port):
     #queue extractor thread
     queueextractor = threading.Thread(target = Extractitemfromqueue, args = (labelq,))
     #garbage thread
-    garbagecollector = threading.Thread(target = garbageCollector,args = (10,))
+    garbagecollector = threading.Thread(target = garbageCollector,args = ())
 
     queueextractor.start()
     garbagecollector.start()
@@ -125,8 +124,5 @@ def init(host,port):
 
 
     while True:
-        input('Key board to get list')
+        input('Keyboard to return unreturned labels')
         print(labeldict)
-        print(pids)
-    
-

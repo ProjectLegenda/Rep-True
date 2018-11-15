@@ -39,7 +39,7 @@ echo "[INFO]configuration file checked"
 
 
 #launch the entry of algorithm
-export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/launch.py"
+export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/smarttool.py $1 $2"
 
 eval $COMM
 
