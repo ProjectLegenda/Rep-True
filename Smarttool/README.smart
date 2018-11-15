@@ -37,9 +37,29 @@ Launching smarttool server:
     $SMARTTOOL_HOME/bin/smarttool.sh localhost 18000 
     
     ## $1 is the IP $2 is the port of smarttool server 
+    # you can nohup smarttool.sh localhost 18000 & to put it to background
+
+Smarttool Client:
+    
+    Change your directory to $SMARTTOOL_HOME/lib or add $SMARTTOOL_HOME/lib to your $PYTHONPATH 
+
+    Launch python3:
+    
+    In python3 session:
+
+    from smartclient import Smartclient
+    stclient = Smartclient('http://localhost:18000') 
+    stclient.getdict('../resource/article1.json')
+    
+    
+    # Input of stclient.getdict is a json file with title&content as necessary key   
+    # Return of method getdict is python dictionary 
+
+Shutting down smarttool server:
+    
+    Kill process where: ps -ef | grep smarttool
 
 
 Caveats: 
-    The site package is based on Cython and possibly need to be re-compiled if the enviorment changed 
-    Enviorment variable SMARTTOOL_HOME must be set
-    
+    Enviorment variable SMARTTOOL_HOME must be set 
+    Shutting down Smarttool server gracefully is under development so we need to relay on Linux command kill 
