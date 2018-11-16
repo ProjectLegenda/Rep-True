@@ -49,20 +49,25 @@ Smarttool Client:
 
     from smartclient import Smartclient
     stclient = Smartclient('http://localhost:18000') 
-    stclient.getdict('../resource/article1.json')
+    stclient.getDict('../resource/article1.json')
     
     
-    # Input of stclient.getdict is a json file with title&content as necessary key   
-    # Return of method getdict is python dictionary 
+    # Input of stclient.getDict is a json file with title&content as necessary key   
+    # Return of method getDict is python dictionary 
 
 Shutting down smarttool server:
     
     If you did not nohup the smartserver,the main process could be shutdown by KeyInterrupt
-    If you nohup the smartserver then only way to shutdown is to:
-        Kill process where: ps -ef | grep smarttool
+    If you nohup the smartserver then you call a shutdown method from smartclient as follows:
 
-    # By default 2 process need to be killed, one is main process of smartserver of which main thread is RPC server, another is subprocess for algorithm
+    Example:
+    Launch python3:
+   
+    In python3 session:
+
+    from smartclient import Smartclient
+    stclient = Smartclient('http://localhost:18000')
+    stclient.shutdown('../resource/article1.json')   
 
 Caveats: 
     Enviorment variable SMARTTOOL_HOME must be set 
-    Shutting down Smarttool server gracefully is under development so we need to relay on Linux command kill for now 
