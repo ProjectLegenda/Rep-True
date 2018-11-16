@@ -111,7 +111,7 @@ def garbageCollector(timeout=100):
         seqlock.release()
         time.sleep(timeout)  
         endtime = time.time()
-        print('[INFO] Garbage collector elpased:',endtime - t)
+        print('[INFO] Garbage collector elapsed:',endtime - t)
         
 def slaveProcess():
     for x in range(1,pcnt):
