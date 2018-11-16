@@ -9,6 +9,10 @@ import time
 from multiprocessing import Process
 import signal
 import os
+from request import Request
+import signal
+#halt queue
+haltqueue = Queue()
 
 #content queue
 contentq = Queue()
@@ -31,16 +35,43 @@ pids = []
 #slave count
 pcnt = 2
 
-def Additemtoqueue(item):
+#constant
+RUNNING=1
+HALTING=0
+
+
+def shutdown():
+    seqlock.acquire()
+    request = Request(r_seq = 0,r_data = 0,r_type = 'SHUTDOWN')
+    contentq.put(request,block=True)
+    haltqueue.put(HALTING,block=True)
+    print('[INFO]Request of Shutting down smarttool has been set to contentqueue')  
+    seqlock.release()
+    return(1)
+    
+    
+def reloadWorker():
+    seqlock.acquire()
+    global seq
+    seq = seq + 1
+    request = Request(r_seq = seq,r_data = 0,r_type = 'RELOAD') 
+    contentq.put(request,block=True)   
+    print('[INFO]Request of reloading worker has been set to contentqueue')
+    seqlock.release()
+    return(1)
+   
+def addItemtoQueue(item):
     seqlock.acquire()
     global seq
     seq = seq + 1    
-    contentq.put((seq,item),block=True)
+    request = Request(r_seq = seq,r_data = item,r_type = 'CALCULATE')
+    contentq.put(request,block=True)
+    print('[INFO]Request ' + str(seq) + ' sent to contentqueue')
     seqlock.release()
     return(seq)
 
 
-def Extractitemfromqueue(queue):
+def extractItemfromQueue(queue):
     while True:
         intuple = queue.get(block=True)
         seqlock.acquire()
@@ -48,7 +79,7 @@ def Extractitemfromqueue(queue):
         labeldict[intuple[0]] = (intuple[1],time.time()) 
         seqlock.release()
 
-def Getitemfromdict(sseq):
+def getItemfromDict(sseq):
     trys = 100
     while True and trys !=0:
         if sseq in labeldict.keys():
@@ -62,7 +93,7 @@ def Getitemfromdict(sseq):
         else:
             time.sleep(0.1)
             trys = trys - 1
-            print(trys)
+            print('[INFO]Remote call is waiting ')
     raise TimeoutError
 
 def garbageCollector(timeout=100):
@@ -82,9 +113,6 @@ def garbageCollector(timeout=100):
         endtime = time.time()
         print('[INFO] Garbage collector elpased:',endtime - t)
         
-
-
-
 def slaveProcess():
     for x in range(1,pcnt):
         plist.append(Process(target=Worker,args=(contentq,labelq)))
@@ -95,13 +123,19 @@ def slaveStart():
         process.start()
         pids.append(process.pid)
 
+def slaveJoin():
+    for process in plist:
+        process.join()
+
 
 class ServerThread(threading.Thread):
     def __init__(self,host,port):
          threading.Thread.__init__(self)
          self.localServer = SimpleXMLRPCServer((host,port))
-         self.localServer.register_function(Additemtoqueue) #just return a string
-         self.localServer.register_function(Getitemfromdict)
+         self.localServer.register_function(addItemtoQueue) #just return a string
+         self.localServer.register_function(getItemfromDict)
+         self.localServer.register_function(reloadWorker)
+         self.localServer.register_function(shutdown)
     def run(self):
          self.localServer.serve_forever()
 
@@ -112,7 +146,7 @@ def init(host,port):
     server.start()
 
     #queue extractor thread
-    queueextractor = threading.Thread(target = Extractitemfromqueue, args = (labelq,))
+    queueextractor = threading.Thread(target = extractItemfromQueue, args = (labelq,))
     #garbage thread
     garbagecollector = threading.Thread(target = garbageCollector,args = ())
 
@@ -124,5 +158,9 @@ def init(host,port):
 
 
     while True:
-        input('Keyboard to return unreturned labels')
-        print(labeldict)
+        if haltqueue.get() == HALTING:
+            print('')
+            slaveJoin()
+            break;
+    os.kill(os.getpid(), signal.SIGKILL)
+

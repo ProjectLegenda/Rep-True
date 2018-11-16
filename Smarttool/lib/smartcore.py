@@ -170,63 +170,84 @@ def calcSimilarity(tfidf,tfidf_matix,title_list,top_n = 5):
 
 
 def Worker(contentqueue,labelqueue):
-   
-    createDictStop()
-    tag = pd.read_csv('../resource/tag.csv')
-    similar = pd.read_csv('../resource/tag_similar_words.csv')
-    mapping =  mappingCbind(similar,tag)
-    clf = joblib.load('../resource/vectorizer.joblib')  
-    tfidf_matix = np.load('../resource/foo.npy')
-    labeled_corpus = pd.read_excel('../resource/labeledContent.xlsx')
-    title_list = labeled_corpus.title.tolist() 
-     
-    print('[INFO]algorithm launched, smarttool is ready for serve') 
+
+
+    def loading_everything():
+    
+        global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list        
+        createDictStop()
+        tag = pd.read_csv('../resource/tag.csv')
+        similar = pd.read_csv('../resource/tag_similar_words.csv')
+        mapping =  mappingCbind(similar,tag)
+        clf = joblib.load('../resource/vectorizer.joblib')
+        tfidf_matrix = np.load('../resource/foo.npy')
+        labeled_corpus = pd.read_excel('../resource/labeledContent.xlsx')
+        title_list = labeled_corpus.title.tolist()
+    
+        #initiate
+    loading_everything()
+    print('[INFO]algorithm launched, smarttool is ready for serve')
+
     while True:
+        request = contentqueue.get(block=True)
+        print('[INFO]Worker get request from contentq, request sequence ' + str(request.rseq()))
         
-        inputtuple = contentqueue.get(block=True)
-        
-        inputdict = inputtuple[1]
-        
-        df = pd.DataFrame(inputdict,index=[0])
-        df["title_token"]= df.title.apply(segContent)
-        df["all"] = df["title"] + "" + df["content"]
-        df["all_token"] = df["all"].apply(segContent)
-        seg = ' '.join(df["all_token"][0])
+        if request.rtype() == 'RELOAD':
+          
+        #reload every thing algorithm need 
+            loading_everything()
+            print('[INFO]algorithm reloaded, smarttool is ready for serve') 
+
+        elif request.rtype() == 'CALCULATE':    
+         
+            start = time()
+       
+            inputdict = request.rdata() 
+    
+            df = pd.DataFrame(inputdict,index=[0])
+            df["title_token"]= df.title.apply(segContent)
+            df["all"] = df["title"] + "" + df["content"]
+            df["all_token"] = df["all"].apply(segContent)
+            seg = ' '.join(df["all_token"][0])
     
     #title tagging
-        df[['lb','hcp','lv1','lv2']] = df.title_token.apply(labelIt,args=(mapping, ))
-        df['lv2'] = df['lv2'].apply(filterComplication)
+            df[['lb','hcp','lv1','lv2']] = df.title_token.apply(labelIt,args=(mapping, ))
+            df['lv2'] = df['lv2'].apply(filterComplication)
     
-        title_lv1 = df['lv1'][0]
-        title_lv2 = df['lv2'][0]
+            title_lv1 = df['lv1'][0]
+            title_lv2 = df['lv2'][0]
     
     #content tagging
-        tfidf = calcTfidf(seg,clf)
-        similar_items = calcSimilarity(tfidf,tfidf_matix,title_list,5)
+            tfidf = calcTfidf(seg,clf)
+            similar_items = calcSimilarity(tfidf,tfidf_matrix,title_list,5)
     
-        similarTitle = [i[0] for i in similar_items] 
-        similarScore = [i[1] for i in similar_items] 
-        #print("Article {} \n has the following similar articles".format(df["title"][0]))
-        #print("---------------------------------------")
-        #print(*similarTitle,sep = "\n")
-        #print("---------------------------------------")
+            similarTitle = [i[0] for i in similar_items] 
+            similarScore = [i[1] for i in similar_items] 
+            #print("Article {} \n has the following similar articles".format(df["title"][0]))
+            #print("---------------------------------------")
+            #print(*similarTitle,sep = "\n")
+            #print("---------------------------------------")
     
-        content_lv1_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv1'].str.split(',').tolist()
-        content_lv2_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv2'].str.split(',').tolist()
-        cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
-        cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
-        content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
-        content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
+            content_lv1_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv1'].str.split(',').tolist()
+            content_lv2_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv2'].str.split(',').tolist()
+            cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
+            cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
+            content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
+            content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
     
     
-        lv1_tags = list(set(content_lv1 + title_lv1))
-        lv2_tags = list(set(content_lv2 + title_lv2))
+            lv1_tags = list(set(content_lv1 + title_lv1))
+            lv2_tags = list(set(content_lv2 + title_lv2))
     
-        out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})
+            out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})
     
-        final = toDictionary(out)
-        #print(inputtuple[0])
-        #print(final)
-        labelqueue.put((inputtuple[0],final))
-    
+            final = toDictionary(out)
+            #print(inputtuple[0])
+            #print(final)
+            end = time()
+            print(end-start)
+            labelqueue.put((request.rseq(),final))
 
+        elif request.rtype() == 'SHUTDOWN':
+            print('[INFO]worker down')
+            break;
