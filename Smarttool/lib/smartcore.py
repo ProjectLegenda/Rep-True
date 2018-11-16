@@ -171,18 +171,24 @@ def calcSimilarity(tfidf,tfidf_matix,title_list,top_n = 5):
 
 def Worker(contentqueue,labelqueue):
 
-
     def loading_everything():
     
         global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list        
         createDictStop()
         tag = pd.read_csv('../resource/tag.csv')
+        print('tag')
         similar = pd.read_csv('../resource/tag_similar_words.csv')
+        print('similar')
         mapping =  mappingCbind(similar,tag)
+        print('mapping')
         clf = joblib.load('../resource/vectorizer.joblib')
-        tfidf_matrix = np.load('../resource/foo.npy')
+        print('clf')
+        tfidf_matrix = np.load('../resource/tfidf.npy')
+        print('tfidf')
         labeled_corpus = pd.read_excel('../resource/labeledContent.xlsx')
+        print('corpus')
         title_list = labeled_corpus.title.tolist()
+        print('title_list')
     
         #initiate
     loading_everything()
