@@ -169,7 +169,7 @@ def calcSimilarity(tfidf,tfidf_matix,title_list,top_n = 5):
 
 
 
-def Worker(contentqueue,labelqueue):
+def Worker(contentqueue,labelqueue,slave_id):
 
     def loading_everything():
     
@@ -185,17 +185,17 @@ def Worker(contentqueue,labelqueue):
     
         #initiate
     loading_everything()
-    print('[INFO]algorithm launched, smarttool is ready for serve')
+    print('[INFO]algorithm launched, smarttool is ready for serve,[slave_id]' + str(slave_id))
 
     while True:
         request = contentqueue.get(block=True)
-        print('[INFO]Worker get request from contentq, request sequence ' + str(request.rseq()))
+        print('[INFO]Worker get request from contentq, request sequence ' + str(request.rseq()) + ' with [slave_id]' + str(slave_id))
         
         if request.rtype() == 'RELOAD':
           
         #reload every thing algorithm need 
             loading_everything()
-            print('[INFO]algorithm reloaded, smarttool is ready for serve') 
+            print('[INFO]algorithm reloaded, smarttool is ready for serve,[slave_id]' + str(slave_id)) 
 
         elif request.rtype() == 'CALCULATE':    
          
@@ -248,5 +248,5 @@ def Worker(contentqueue,labelqueue):
             labelqueue.put((request.rseq(),final))
 
         elif request.rtype() == 'SHUTDOWN':
-            print('[INFO]worker down')
+            print('[INFO]worker down with [slaveid]' + str(slave_id))
             break;

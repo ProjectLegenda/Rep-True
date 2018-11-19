@@ -10,12 +10,14 @@ from multiprocessing import Process
 import signal
 import os
 from request import Request
+import random
 #halt queue
 haltqueue = Queue()
 
 #content queue
 contentq = Queue()
 
+distributed_contentq = []
 #label queue
 labelq = Queue()
 
@@ -31,18 +33,33 @@ labeldict = {}
 #slave list
 plist = []
 pids = []
+
+
 #slave count
-pcnt = 2
+pcnt = 2 
 
 #constant
 RUNNING=1
 HALTING=0
 
+def slavequeue():
+    for queue in range(0,pcnt - 1):
+        distributed_contentq.append(Queue())  
+        print('[INFO]distributed_contentq launched, with length = ' + str(pcnt-1))
+   
+def distributeRequest(oq,disqlist):
+    print('[INFO]distributed contentq is working')
+    while True:
+        tmpcontent = oq.get()
+        seqlock.acquire()
+        disqlist[random.randint(0,pcnt-2)].put(tmpcontent)
+        seqlock.release()
 
 def shutdown():
     seqlock.acquire()
     request = Request(r_seq = 0,r_data = 0,r_type = 'SHUTDOWN')
-    contentq.put(request,block=True)
+    for cq in distributed_contentq:
+        cq.put(request,block=True)
     haltqueue.put(HALTING,block=True)
     print('[INFO]Request of Shutting down smarttool has been set to contentqueue')  
     seqlock.release()
@@ -54,7 +71,8 @@ def reloadWorker():
     global seq
     seq = seq + 1
     request = Request(r_seq = seq,r_data = 0,r_type = 'RELOAD') 
-    contentq.put(request,block=True)   
+    for cq in distributed_contentq:
+        cq.put(request,block=True)   
     print('[INFO]Request of reloading worker has been set to contentqueue')
     seqlock.release()
     return(1)
@@ -113,15 +131,17 @@ def garbageCollector(timeout=100):
         print('[INFO] Garbage collector elapsed:',endtime - t)
         
 def slaveProcess():
-    for x in range(1,pcnt):
-        plist.append(Process(target=Worker,args=(contentq,labelq)))
+    for x in range(0,pcnt-1):
+        plist.append(Process(target=Worker,args=(distributed_contentq[x],labelq,x)))
 
 def slaveStart():
     for process in plist:
         process.daemon = True
         process.start()
         pids.append(process.pid)
-
+        
+    print('[INFO]Process were spawned with PID' + str(pids))
+     
 def slaveJoin():
     for process in plist:
         process.join()
@@ -148,10 +168,14 @@ def init(host,port):
     queueextractor = threading.Thread(target = extractItemfromQueue, args = (labelq,))
     #garbage thread
     garbagecollector = threading.Thread(target = garbageCollector,args = ())
+    #content distributor
+    distributerequest = threading.Thread(target = distributeRequest,args=(contentq,distributed_contentq))
 
+    distributerequest.start()
     queueextractor.start()
     garbagecollector.start()
 
+    slavequeue()
     slaveProcess()
     slaveStart()
 
