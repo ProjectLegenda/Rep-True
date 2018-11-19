@@ -10,7 +10,6 @@ from multiprocessing import Process
 import signal
 import os
 from request import Request
-import signal
 #halt queue
 haltqueue = Queue()
 
@@ -59,7 +58,7 @@ def reloadWorker():
     print('[INFO]Request of reloading worker has been set to contentqueue')
     seqlock.release()
     return(1)
-   
+
 def addItemtoQueue(item):
     seqlock.acquire()
     global seq
