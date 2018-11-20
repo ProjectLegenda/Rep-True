@@ -55,7 +55,14 @@ Smarttool Client:
     # Input of stclient.getDict is a json file with title&content as necessary key   
     # Return of method getDict is python dictionary 
 
-Shutting down smarttool server:
+    if you want to use xmlclient directly,the following method is the way to control remote call
+   
+    addItemtoQueue
+    getItemfromDict 
+          
+
+
+Shutting down smarttool rpc server:
     
     If you did not nohup the smartserver,the main process could be shutdown by KeyInterrupt
     If you nohup the smartserver then you call a shutdown method from smartclient as follows:
@@ -67,7 +74,22 @@ Shutting down smarttool server:
 
     from smartclient import Smartclient
     stclient = Smartclient('http://localhost:18000')
-    stclient.shutdown('../resource/article1.json')   
+    stclient.shutdown()   
 
+Relaunching algorithm:
+    
+    The algorithm could be re-launched without shutting down the rpcserver 
+    After this call,all data algorithm need will be reloaded into memory. IO will happen
+    
+    Example:
+    Launch python3:
+   
+    In python3 session:
+
+    from smartclient import Smartclient
+    stclient = Smartclient('http://localhost:18000')
+    stclient.reloadWorker()
+
+   
 Caveats: 
     Enviorment variable SMARTTOOL_HOME must be set 
