@@ -7,7 +7,7 @@ import os
 
 ##Read Json file in dictionary ./
 def getJsonDict():
-    etc_dir = os.environ.get('ALGORITHM_HOME')
+    etc_dir = os.environ.get('SMARTTOOL_HOME')
     with open( str(etc_dir) + '/./etc/config.json','r') as loaded_f:
         loaded_dict = json.load(loaded_f)
     return(loaded_dict)
@@ -18,7 +18,7 @@ def checkKey():
     loaded_dict = getJsonDict()    
 
     ##necessary keys
-    keys = ['db_connect_type','server','server_port','user','password','database','tmp_dir','auth']
+    keys = ['db_connect_type','server','server_port','user','password','database','auth','IOtype']
 
 ##check if the necessary keys in config Json
     for item in keys:
@@ -30,11 +30,6 @@ def parseValue():
     checkKey()
    
 
- #Simple parse values for necessary keys 
-    if loaded_dict['db_connect_type'] not in ['hive']:
-        print('Connect type in config json : ' + loaded_dict['db_connect_type']) 
-        print('The current version only support HIVE and  the connection could possiblly failed if db_connect_type is not hive')
-    
     tmp_str = str(loaded_dict['server_port'])
     pattern = '^\d{1,5}$'
     match = re.match(pattern,tmp_str)        
@@ -44,6 +39,8 @@ def parseValue():
     for item in loaded_dict:
         print('Key in Json is :' + str(item) + ' and Value in Json is :' + str(loaded_dict[item]))
     """ 
+    if loaded_dict['IOtype'] not in ['fs','db']:
+        raise ValueError('IOtype must be fs or db')
 
 #get connectable string for Pandas
 def getConnectable():
@@ -58,8 +55,8 @@ def getConnectable():
     + str(loaded_dict['server_port']) \
     + '/'\
     + loaded_dict['database']\
-    + '?auth='\
-    + loaded_dict['auth']
+    #+ '?auth='\
+    #+ loaded_dict['auth']
     return(connectable)
 
 #get conn for Pandas
@@ -74,3 +71,12 @@ def getValue(key):
     ##if tab_name not in ['tab','similar','wechat','web','mappingword','stopword']:
     ##    raise ValueError('Input table must be in tag|similar|wechat|web')
     return(loaded_dict[key])
+
+def getIOtype():
+    parseValue()
+    return(loaded_dict['IOtype'])
+
+def getResourcePath():
+    parseValue()
+    return(os.environ.get('SMARTTOOL_HOME') + '/' + 'resource/')
+ 

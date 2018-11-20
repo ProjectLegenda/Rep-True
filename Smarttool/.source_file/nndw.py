@@ -4,9 +4,22 @@ This module is only for NN4PE project setup
 """
 import nnenv
 import pandas as pd
-def read_table(table_name):
+from sklearn.externals import joblib
+import numpy as np
+
+def Dataframefactory(table_name,sep = ','):
     ##directly return Pandas dataframe
-    return(pd.read_sql_table(table_name=table_name,con=nnenv.getConnectable()))  
+    if nnenv.getIOtype() == 'fs':
+        return(pd.read_csv(nnenv.getResourcePath() + table_name,sep=sep,engine='python'))
+    if nnenv.getIOtype() == 'db':
+        return(pd.read_sql_table(table_name=table_name,con=nnenv.getConnectable()))  
+
+def Numpyarrayfactory(np_name):
+    return(np.load(nnenv.getResourcePath() + np_name))
+
+
+def Joblibfactory(vectorizer):
+    return(joblib.load(nnenv.getResourcePath() + vectorizer))
 
 
 def write_table(data_frame,table_name):
@@ -26,5 +39,6 @@ def write_table(data_frame,table_name):
     result=conn.execute(hive_sql_)
     result.close()
 
-def getTable(tab_name):
+def getName(tab_name):
     return nnenv.getValue(tab_name)
+
