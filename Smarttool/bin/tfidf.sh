@@ -39,7 +39,7 @@ echo "[INFO]configuration file checked"
 
 
 #launch the entry of algorithm
-export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/tfidf.py"
+export COMM="$PYTHONBINARY $SMARTTOOL_HOME/lib/calculate_tfidf.py"
 
 eval $COMM
 
