@@ -1,0 +1,43 @@
+Configuration file for smarttool is $SMARTTOOL_HOME/etc/config.json
+
+Explanation for each key:values pairs 
+
+IOtype:
+    allowable value is 'fs' or 'db', when IOtype set to 'fs', then the smarttool will read all necessary dataset from filesystem,in csv format. path is $SMARTTOOL_HOME/resource:
+    when set to 'db', datasets: tag|tag_similar_word|stopword|mappingword|content_articles will be read from database specified by keys in configuration json file:db_connect_type|server|server_port|user|password|database.
+
+db_connect_type:
+    This key is to specify connection engine used by sqlalchemy,which is python based database connection toolkit, in smarttool. once IOtype were set to 'db', the value for this db_connect_type key should be set to 'mysql+pymysql'.
+
+server|server_port|user|password:
+    These four keys are used to build sqlalchemy URL used by smarttool to connect database
+
+tag|similar|stopword|mappingword|content_articles:
+    These five keys indicate the datasets the smarttool need to launch algorithm. when IOtype were set to 'fs', their value should be filename in $SMARTTOOL_HOME/resource/. if IOtype was set to 'db', their value should be tablename in database:
+
+vectorizer|tfidf:
+    Two keys indicate the necessary files algorithm need. which also lived in $SMARTTOOL_HOME/resource/
+
+example:
+
+{
+  "IOtype":"fs",
+  "db_connect_type":"mysql+pymysql",
+  "server":"etlappnode1",
+  "server_port":3306,
+  "user":"content_db_user",
+  "password":"qaz!#wsx$edc",
+  "database":"content_db",
+  "auth":"CUSTOM",
+  "tag":"tag.csv",
+  "similar":"tag_similar_words.csv",
+  "mappingword":"mappingWordFinal.txt",
+  "stopword":"StopWordFinal.txt",
+  "content_articles":"validArticles.csv",
+  "labeledContent":"labeledContent.csv",
+  "vectorizer":"vectorizer.joblib",
+  "tfidf":"tfidf.npy"
+} 
+
+this configuration json will notice the smarttool to use csv (tag.csv,tag_similar_words.csv,mappingWordFinal.txt,StopWordFinal.txt,labeledContent.csv) from $SMARTTOOL_HOME/resource/ as input dataset. the database part will be ignored.   
+

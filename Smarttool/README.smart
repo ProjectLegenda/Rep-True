@@ -15,6 +15,7 @@ Pre-requisite:
     thrift
     Cython
     sklearn
+    pymysql
 
     export PATH and let shell know where to find your python3 binary
     
