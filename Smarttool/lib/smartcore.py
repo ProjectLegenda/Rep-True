@@ -187,7 +187,7 @@ def Worker(contentqueue,labelqueue,slave_id):
         clf = nn.Joblibfactory(nn.getName('vectorizer'))
         tfidf_matrix = nn.Numpyarrayfactory(nn.getName('tfidf'))
 
-        labeled_corpus = nn.Dataframefactory(nn.getName('labeledContent'))
+        labeled_corpus = nn.Dataframefactory(nn.getName('labeledContent'),sep = '|')
         title_list = labeled_corpus.title.tolist()
     
         #initiate

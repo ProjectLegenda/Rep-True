@@ -5,7 +5,7 @@ cc = Smartclient('http://localhost:18000')
  
 
 start = time.time()
-cc.reloadWorker()
+#cc.reloadWorker()
 print(cc.getDict('../resource/test0.json'))
 print(cc.getDict('../resource/test1.json'))
 print(cc.getDict('../resource/test2.json'))

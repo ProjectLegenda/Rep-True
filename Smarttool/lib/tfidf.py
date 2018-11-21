@@ -89,7 +89,7 @@ def createTfidfMatrix(corpus):
 
 def main():
     # pre-define path & variables
-    corpus_raw = nn.Dataframefactory(nn.getName('labeledContent'))
+    corpus_raw = nn.Dataframefactory(nn.getName('labeledContent'),sep = '|')
     vector = "vectorizer.joblib"
     matrix = "tfidf.npy"
     outpath = nnenv.getResourcePath() 
