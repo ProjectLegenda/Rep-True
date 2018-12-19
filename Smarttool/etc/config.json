@@ -11,9 +11,10 @@
   "similar":"tag_similar_words.csv",
   "mappingword":"mappingWordFinal.txt",
   "stopword":"StopWordFinal.txt",
-  "content_articles":"validArticles.csv",
-  "labeledContent":"labeledContent.csv",
+  "content_articles":"newvalidarticles.csv",
+  "labeledContent":"new_content_lables.csv",
   "vectorizer":"vectorizer.joblib",
-  "tfidf":"tfidf.npy"
+  "tfidf":"tfidf.npy",
+  "content_id_mapping":"content_id_mapping.csv"
 }
 

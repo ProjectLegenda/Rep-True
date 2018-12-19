@@ -69,12 +69,17 @@ def combineTitleAndContent(dataset):
     :param dataset: xlsx or sth
     :return: corpus: list of tokens for each article
     """
-    corpus = dataset
-    corpus['all'] = corpus['title'] + corpus['content']
-    corpus = corpus[["all","title","content"]]
+    corpus = dataset[dataset["status"]==1]
+  
+    corpus = corpus.reset_index(drop = True)
+
+    corpus['all'] = corpus['title'] + corpus['content']  
+    corpus = corpus[["all","title","content","content_id"]]
     return corpus
 
+
 def createTfidfMatrix(corpus):
+
     corpus_list = corpus["corpus"].tolist()
     from sklearn.feature_extraction.text import TfidfVectorizer
     vectorizer = TfidfVectorizer(
@@ -89,17 +94,23 @@ def createTfidfMatrix(corpus):
 
 def main():
     # pre-define path & variables
-    corpus_raw = nn.Dataframefactory(nn.getName('labeledContent'),sep = '|')
+    corpus_raw = nn.Dataframefactory(nn.getName('content_articles'),sep = ',')
     vector = "vectorizer.joblib"
     matrix = "tfidf.npy"
     outpath = nnenv.getResourcePath() 
     
+    
     # load dict and stopwords
     createDictStop()
     
-    # load corpus
+    # load corpus/
     corpus = combineTitleAndContent(corpus_raw)
     
+
+    # save content_id mapping
+    content_id_mapping = corpus["content_id"]
+    content_id_mapping.to_csv(outpath + nn.getName('content_id_mapping')) 
+
     # transform corpus to right format
     corpus["corpus"] = corpus["all"].apply(segment)
     
