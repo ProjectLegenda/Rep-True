@@ -41,9 +41,9 @@ def createDictStop():
     """
     print("Loading Dictionary and Stopwords")
     global stopWord
-    dic = nn.Dataframefactory(nn.getName('mappingword'),sep = '/r/n')
+    dic = nn.Dataframefactory(nnenv.getName('mappingword'),sep = '/r/n')
     word = dic.word.tolist()
-    stopWord = nn.Dataframefactory(nn.getName('stopword'),sep = '/r/n') 
+    stopWord = nn.Dataframefactory(nnenv.getName('stopword'),sep = '/r/n') 
     stopWord = stopWord.stopword.tolist()
     stopWord.append(" ")
     jieba.re_han_default = re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
@@ -94,7 +94,7 @@ def createTfidfMatrix(corpus):
 
 def main():
     # pre-define path & variables
-    corpus_raw = nn.Dataframefactory(nn.getName('content_articles'),sep = ',')
+    corpus_raw = nn.Dataframefactory(nnenv.getName('content_articles'),sep = ',')
     vector = "vectorizer.joblib"
     matrix = "tfidf.npy"
     outpath = nnenv.getResourcePath() 
@@ -109,7 +109,7 @@ def main():
 
     # save content_id mapping
     content_id_mapping = corpus["content_id"]
-    content_id_mapping.to_csv(outpath + nn.getName('content_id_mapping')) 
+    content_id_mapping.to_csv(outpath + nnenv.getName('content_id_mapping')) 
 
     # transform corpus to right format
     corpus["corpus"] = corpus["all"].apply(segment)

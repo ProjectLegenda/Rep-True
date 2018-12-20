@@ -43,9 +43,9 @@ def createDictStop():
     global stopWord    
     #dic_path = '../resource/'
     #jieba.load_userdict(dic_path + "mappingWordFinal.txt")
-    dic = nn.Dataframefactory(nn.getName('mappingword'),sep = '/r/n')
+    dic = nn.Dataframefactory(nnenv.getName('mappingword'),sep = '/r/n')
     word = dic.word.tolist()   
-    stopWord = nn.Dataframefactory(nn.getName('stopword'),sep = '/r/n')  
+    stopWord = nn.Dataframefactory(nnenv.getName('stopword'),sep = '/r/n')  
     stopWord = stopWord.stopword.tolist()
     stopWord.append(" ")
     jieba.re_han_default =re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
@@ -180,11 +180,11 @@ def Worker(contentqueue,labelqueue,slave_id):
     
         global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list        
         createDictStop()
-        tag = nn.Dataframefactory(nn.getName('tag'))
-        similar = nn.Dataframefactory(nn.getName('similar')) 
+        tag = nn.Dataframefactory(nnenv.getName('tag'))
+        similar = nn.Dataframefactory(nnenv.getName('similar')) 
         mapping =  mappingCbind(similar,tag)
 
-        clf = nn.Joblibfactory(nn.getName('vectorizer'))
+        clf = nn.Joblibfactory(nnenv.getName('vectorizer'))
         tfidf_matrix = nn.Numpyarrayfactory(nn.getName('tfidf'))
 
         labeled_corpus = nn.Dataframefactory(nn.getName('labeledContent'),sep = '|')

@@ -39,6 +39,4 @@ def write_table(data_frame,table_name):
     result=conn.execute(hive_sql_)
     result.close()
 
-def getName(tab_name):
-    return nnenv.getValue(tab_name)
 
