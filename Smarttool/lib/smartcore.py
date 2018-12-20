@@ -171,25 +171,42 @@ def calcSimilarity(tfidf,tfidf_matix,title_list,top_n = 5):
     similar_items = sorted([(title_list[i], cosine_similarities[0,i]) for i in similar_indices], key=lambda x: -x[1])
     return similar_items
 
+def calcSimilarity_m2(tfidf,tfidf_matix,top_n = 5):
+    cosine_similarities = cosine_similarity(tfidf,tfidf_matix)
+    similar_indices = cosine_similarities.argsort().flatten()[-top_n:]
+    print(similar_indices)
+    print(cosine_similarities)
+    index_similarity_list = []
+    for x in similar_indices:
+        index_similarity_list.append({'index': x,'cosine_similarity':cosine_similarities[0,x] })            
+    df = pd.DataFrame(index_similarity_list)
+    print(df)
+    return(df)
 
-
+def getContentid(df_content_id_mapping,df_index_similarity):
+    
+    df = pd.merge(df_content_id_mapping,df_index_similarity, on = 'index')
+    print(df)
+    return(df)   
 
 def Worker(contentqueue,labelqueue,slave_id):
 
     def loading_everything():
     
-        global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list        
+        global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list,content_id_mapping        
         createDictStop()
         tag = nn.Dataframefactory(nnenv.getName('tag'))
         similar = nn.Dataframefactory(nnenv.getName('similar')) 
         mapping =  mappingCbind(similar,tag)
 
         clf = nn.Joblibfactory(nnenv.getName('vectorizer'))
-        tfidf_matrix = nn.Numpyarrayfactory(nn.getName('tfidf'))
+        tfidf_matrix = nn.Numpyarrayfactory(nnenv.getName('tfidf'))
 
-        labeled_corpus = nn.Dataframefactory(nn.getName('labeledContent'),sep = '|')
+        labeled_corpus = nn.Dataframefactory(nnenv.getName('labeledContent'),sep = '|')
         title_list = labeled_corpus.title.tolist()
     
+        content_id_mapping = pd.read_csv(nnenv.getResourcePath() + '/' + nnenv.getName('content_id_mapping'))
+
         #initiate
     loading_everything()
     print('[INFO]algorithm launched, smarttool is ready for serve,[slave_id]' + str(slave_id))
@@ -254,6 +271,57 @@ def Worker(contentqueue,labelqueue,slave_id):
             end = time()
             print(end-start)
             labelqueue.put((request.rseq(),final))
+
+        elif request.rtype() =='TEST':
+            print('[INFO]signal get for TEST')
+  
+            start = time()
+       
+            inputdict = request.rdata() 
+    
+            df = pd.DataFrame(inputdict,index=[0])
+            df["title_token"]= df.title.apply(segContent)
+            df["all"] = df["title"] + "" + df["content"]
+            df["all_token"] = df["all"].apply(segContent)
+            seg = ' '.join(df["all_token"][0])
+    
+    #title tagging
+            df[['lb','hcp','lv1','lv2']] = df.title_token.apply(labelIt,args=(mapping, ))
+            df['lv2'] = df['lv2'].apply(filterComplication)
+    
+            title_lv1 = df['lv1'][0]
+            title_lv2 = df['lv2'][0]
+    
+    #content tagging
+            tfidf = calcTfidf(seg,clf)
+
+            df_similarity = calcSimilarity_m2(tfidf,tfidf_matrix,5)
+            df_merge = getContentid(content_id_mapping,df_similarity)
+             
+            content_id_list = df_merge['content_id'].tolist()
+            
+            content_lv1_raw = labeled_corpus[labeled_corpus.content_id.isin(content_id_list)]['lv1'].str.split(',').tolist()
+            content_lv2_raw = labeled_corpus[labeled_corpus.content_id.isin(content_id_list)]['lv2'].str.split(',').tolist()
+            cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
+            cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
+            content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
+            content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
+    
+    
+            lv1_tags = list(set(content_lv1 + title_lv1))
+            lv2_tags = list(set(content_lv2 + title_lv2))
+    
+            #out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})
+            out = pd.DataFrame({"lv2":[lv2_tags]})
+    
+            final = toDictionary(out)
+            #print(inputtuple[0])
+            #print(final)
+            end = time()
+            print(end-start)
+            labelqueue.put((request.rseq(),final))
+
+ 
 
         elif request.rtype() == 'SHUTDOWN':
             print('[INFO]worker down with [slaveid]' + str(slave_id))

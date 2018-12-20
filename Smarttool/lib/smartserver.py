@@ -87,6 +87,15 @@ def addItemtoQueue(item):
     seqlock.release()
     return(seq)
 
+def Test(item):
+    seqlock.acquire()
+    global seq
+    seq = seq + 1
+    request = Request(r_seq = seq,r_data = item,r_type = 'TEST')
+    contentq.put(request,block=True)
+    print('[INFO]TEST DATA send to contentqueue')
+    seqlock.release()
+    return(seq)
 
 def extractItemfromQueue(queue):
     while True:
@@ -155,6 +164,7 @@ class ServerThread(threading.Thread):
          self.localServer.register_function(getItemfromDict)
          self.localServer.register_function(reloadWorker)
          self.localServer.register_function(shutdown)
+         self.localServer.register_function(Test)
     def run(self):
          self.localServer.serve_forever()
 

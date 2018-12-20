@@ -80,7 +80,6 @@ def getResourcePath():
     parseValue()
     return(os.environ.get('SMARTTOOL_HOME') + '/' + 'resource/')
  
-
 def getName(table_name): 
     parseValue()
     return(loaded_dict[table_name])

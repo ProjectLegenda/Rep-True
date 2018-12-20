@@ -24,6 +24,12 @@ class Smartclient():
 
     def shutdown(self):
         self.s.shutdown()
-
-
+   
+    def Test(self,jsonfile):
+        with open(jsonfile,'r') as loaded_f:
+            loaded_dict = json.load(loaded_f)
+            self.seq = self.s.Test(loaded_dict)
+            time.sleep(self.waitsec)
+            self.labels = self.s.getItemfromDict(self.seq)
+        return(self.labels)
 

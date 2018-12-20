@@ -94,7 +94,7 @@ def createTfidfMatrix(corpus):
 
 def main():
     # pre-define path & variables
-    corpus_raw = nn.Dataframefactory(nnenv.getName('content_articles'),sep = ',')
+    corpus_raw = nn.Dataframefactory(nnenv.getName('content_articles'),sep = '|')
     vector = "vectorizer.joblib"
     matrix = "tfidf.npy"
     outpath = nnenv.getResourcePath() 
@@ -108,8 +108,10 @@ def main():
     
 
     # save content_id mapping
-    content_id_mapping = corpus["content_id"]
+    content_id_mapping = corpus[["content_id"]]
+    content_id_mapping.index.name = 'index'
     content_id_mapping.to_csv(outpath + nnenv.getName('content_id_mapping')) 
+
 
     # transform corpus to right format
     corpus["corpus"] = corpus["all"].apply(segment)

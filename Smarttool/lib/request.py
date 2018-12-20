@@ -3,7 +3,7 @@ class Request():
         self.r_seq = r_seq
         self.r_data = r_data
         self.r_type = r_type
-        if self.r_type not in ['RELOAD','CALCULATE','SHUTDOWN']:
+        if self.r_type not in ['RELOAD','CALCULATE','SHUTDOWN','TEST']:
             print('[ERROR]Invalid request type')
             raise ValueError
         
