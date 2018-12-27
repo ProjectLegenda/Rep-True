@@ -11,10 +11,11 @@ from sqlalchemy import create_engine
 def Dataframefactory(table_name,sep = ',',iotype = 'fs'):
     ##directly return Pandas dataframe
     if iotype == 'fs':
-        return(pd.read_csv(nnenv.getResourcePath() + table_name,sep=sep,engine='python'))
+        return(pd.read_csv(nnenv.getResourcePath() + nnenv.getItem(table_name),sep=sep))
     if iotype == 'db':
-        return(pd.read_sql_table(table_name=table_name,con=nnenv.getConnectable()))  
+        return(pd.read_sql_table(table_name=nnenv.getItem(table_name),con=nnenv.getConnectable()))  
     else:
+        print('IOtype is only for db or fs')
         raise(Exception)
     
 def Numpyarrayfactory(np_name):
@@ -28,14 +29,14 @@ def Joblibfactory(vectorizer):
 def write_table(data_frame,table_name,sep = ',',iotype = 'fs'):
     
     if iotype == 'fs':
-        data_frame.to_csv(nnenv.getResourcePath() + table_name,sep=sep)  
+        data_frame.to_csv(nnenv.getResourcePath() + nnenv.getItem(table_name),sep=sep)  
 
     if iotype == 'db':
          
     ##initlize data engine
         engine=create_engine(nnenv.getConnectable())
     ##write data frame to csv tmp file
-        path_tmp_file=nnenv.getValue('tmp_dir') + '/' + table_name
+        path_tmp_file=nnenv.getItem('tmp_dir') + '/' + nnenv.getItem(table_name)
         data_frame.to_csv(path_tmp_file, index=False,header=False)
     ##connect database
         conn=engine.connect() 
@@ -45,9 +46,7 @@ def write_table(data_frame,table_name,sep = ',',iotype = 'fs'):
     ##execute hive_sql
         result=conn.execute(hive_sql_)
         result.close()
+    else:
+        print('IOtype is only for db or fs')
+        raise(Exception)
 
-del nnenv
-del pd
-del joblib
-del np
-del create_engine

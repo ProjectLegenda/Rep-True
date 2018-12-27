@@ -1,20 +1,18 @@
 {
-  "db_connect_type":"mysql+pymysql",
-  "server":"etlappnode1",
-  "server_port":3306,
-  "user":"content_db_user",
-  "password":"qaz!#wsx$edc",
-  "database":"content_db",
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"admin4PEdwc",
+  "password":"whatever",
+  "database":"novodb",
   "auth":"CUSTOM",
-  "tag":"tag.csv",
-  "similar":"tag_similar_words.csv",
-  "mappingword":"mappingWordFinal.txt",
+  "tag":"hcp_tag.csv",
+  "similar":"tag_simi.csv",
+  "mappingword":"mappingWords_20181219.txt",
   "stopword":"StopWordFinal.txt",
-  "content_articles":"newvalidarticles.csv",
-  "labeledContent":"new_content_lables.csv",
-  "vectorizer":"vectorizer.joblib",
-  "tfidf":"tfidf.npy",
-  "content_id_mapping":"content_id_mapping.csv",
-  "tmp_dir":"/tmp"
+  "tmp_dir":"/tmp",
+  "hcp_ability_detailing":"novo_hcp_ability_detailing_path.txt",
+  "web":"pc_data.new.csv",
+  "wechat":"webchat_content_view.csv"
 }
 
