@@ -1,5 +1,4 @@
 {
-  "IOtype":"fs",
   "db_connect_type":"mysql+pymysql",
   "server":"etlappnode1",
   "server_port":3306,
@@ -15,6 +14,7 @@
   "labeledContent":"new_content_lables.csv",
   "vectorizer":"vectorizer.joblib",
   "tfidf":"tfidf.npy",
-  "content_id_mapping":"content_id_mapping.csv"
+  "content_id_mapping":"content_id_mapping.csv",
+  "tmp_dir":"/tmp"
 }
 

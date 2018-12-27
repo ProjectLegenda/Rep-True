@@ -7,7 +7,7 @@ import os
 
 ##Read Json file in dictionary ./
 def getJsonDict():
-    etc_dir = os.environ.get('SMARTTOOL_HOME')
+    etc_dir = os.environ.get('HCPCAPA_HOME')
     with open( str(etc_dir) + '/./etc/config.json','r') as loaded_f:
         loaded_dict = json.load(loaded_f)
     return(loaded_dict)
