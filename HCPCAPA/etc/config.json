@@ -1,0 +1,20 @@
+{
+  "IOtype":"fs",
+  "db_connect_type":"mysql+pymysql",
+  "server":"etlappnode1",
+  "server_port":3306,
+  "user":"content_db_user",
+  "password":"qaz!#wsx$edc",
+  "database":"content_db",
+  "auth":"CUSTOM",
+  "tag":"tag.csv",
+  "similar":"tag_similar_words.csv",
+  "mappingword":"mappingWordFinal.txt",
+  "stopword":"StopWordFinal.txt",
+  "content_articles":"newvalidarticles.csv",
+  "labeledContent":"new_content_lables.csv",
+  "vectorizer":"vectorizer.joblib",
+  "tfidf":"tfidf.npy",
+  "content_id_mapping":"content_id_mapping.csv"
+}
+
