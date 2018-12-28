@@ -15,6 +15,7 @@
   "web":"pc_data.new.csv",
   "wechat":"webchat_content_view.csv",
   "heatmap":"heatmap.csv",
-  "chordmap":"chordmap.csv"
+  "chordmap":"chordmap.csv",
+  "segmentmapping":"setgmentmapping.csv"
 }
 

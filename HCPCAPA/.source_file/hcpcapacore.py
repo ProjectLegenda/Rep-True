@@ -482,6 +482,7 @@ def main():
     
     nn.write_table(heatMapOutput,'heatmap',iotype = iotype)    
     nn.write_table(chordMapOutput,'chordmap', iotype = iotype)
-
+    nn.write_table(allCbindDf,'segmentmapping',iotype = iotype)
+    
     return (1)   
 
