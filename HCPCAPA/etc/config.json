@@ -13,6 +13,8 @@
   "tmp_dir":"/tmp",
   "hcp_ability_detailing":"novo_hcp_ability_detailing_path.txt",
   "web":"pc_data.new.csv",
-  "wechat":"webchat_content_view.csv"
+  "wechat":"webchat_content_view.csv",
+  "heatmap":"heatmap.csv",
+  "chordmap":"chordmap.csv"
 }
 

@@ -11,6 +11,8 @@ import itertools
 import nndw as nn
 #import nndw as nn
 
+iotype = 'fs'
+
 def chordStatsBySeg(data, segId):
     segAllData = data
    
@@ -175,10 +177,10 @@ def createDictStop():
     print("Loading Dictionary and Stopwords")
     global stopWord
     
-    dic = nn.Dataframefactory("mappingword",sep = '\r\n')
+    dic = nn.Dataframefactory("mappingword",sep = '\r\n',iotype=iotype)
     #dic = pd.read_csv(inPath+"/mappingWords_20181219.txt", sep="\r\n", engine="python")
     
-    stopWord = nn.Dataframefactory("stopword",sep = '\r\n')
+    stopWord = nn.Dataframefactory("stopword",sep = '\r\n',iotype=iotype)
     #stopWord = pd.read_csv(inPath+"/StopWordFinal.txt", encoding="utf-8", sep="\r\n", engine="python")
     
     word = dic.word.tolist()   
@@ -422,23 +424,23 @@ def getSegDoctorList(allCbindDf, novoHcpAgg, segment_id):
 
 
 def main():
-    tag = nn.Dataframefactory("tag")
+    tag = nn.Dataframefactory("tag",iotype = iotype)
     #tag = pd.read_excel(inPath+"/20181219_hcp_tag.xlsx")
     
-    simi = nn.Dataframefactory("similar")
+    simi = nn.Dataframefactory("similar",iotype = iotype)
     #simi = pd.read_excel(inPath+"/20181219_tag_simi.xlsx")
 
     mapping =  mappingCbind(simi,tag)
     createDictStop()
     
-    novoHcpAgg = nn.Dataframefactory("hcp_ability_detailing")
+    novoHcpAgg = nn.Dataframefactory("hcp_ability_detailing",iotype = iotype)
     #novoHcpAgg = pd.read_csv(inPath+"/novo_hcp_ability_detailing_path.txt", encoding="utf-8", engine="python")
     doctorList = list(set(novoHcpAgg["novo_hcp_ability_detailing_path.customer_code"]))
     
-    wechat = nn.Dataframefactory("wechat")
+    wechat = nn.Dataframefactory("wechat",iotype = iotype)
     #wechat = pd.read_excel(inPath+"/webchat_content_view.xlsx")
     
-    web = nn.Dataframefactory("web")
+    web = nn.Dataframefactory("web",iotype = iotype)
     #web = pd.read_excel(inPath+"/pc_data.xlsx")
 
     # 整合微信和网站的数据到同一个df
@@ -477,5 +479,9 @@ def main():
     heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
     chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
     print("Finished calculating")
-    return (heatMapOutput,chordMapOutput )   
+    
+    nn.write_table(heatMapOutput,'heatmap',iotype = iotype)    
+    nn.write_table(chordMapOutput,'chordmap', iotype = iotype)
+
+    return (1)   
 

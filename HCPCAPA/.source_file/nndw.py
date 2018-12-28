@@ -29,9 +29,9 @@ def Joblibfactory(vectorizer):
 def write_table(data_frame,table_name,sep = ',',iotype = 'fs'):
     
     if iotype == 'fs':
-        data_frame.to_csv(nnenv.getResourcePath() + nnenv.getItem(table_name),sep=sep)  
+        data_frame.to_csv(nnenv.getResourcePath() + nnenv.getItem(table_name),sep=sep,index = False)  
 
-    if iotype == 'db':
+    elif iotype == 'db':
          
     ##initlize data engine
         engine=create_engine(nnenv.getConnectable())
