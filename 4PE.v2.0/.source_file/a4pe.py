@@ -722,6 +722,12 @@ def main():
     print("Step 7: Done")
     print("------------------------------------------------------")
     print("ALL COMPLETE")
-    
+
+    nn.write(output1,'hcp_channel_preference',iotype = iotype)
+    nn.write(output1,'hcp_content_interest',iotype = iotype)
+    nn.write(output1,'hcp_content_interest_keyword',iotype = iotype)
+    nn.write(output1,'hcp_reading_history',iotype = iotype)
+    nn.write(output1,'hcp_recommendation',iotype = iotype)
+  
     return(1)
 
