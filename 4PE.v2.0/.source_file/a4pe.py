@@ -46,7 +46,7 @@ def createDictStop():
     dic = nn.Dataframefactory('mappingword',sep = '\r\n',iotype = iotype)
     #stopWord = pd.read_csv(dic_path + 'StopWordFinal.txt',
     #                       encoding='utf-8', engine='python', sep='\r\n')
-    stopWord = nn.Dataframefafactory('stopword',sep = '\r\n', iotype = iotype)
+    stopWord = nn.Dataframefactory('stopword',sep = '\r\n', iotype = iotype)
     word = dic.word.tolist()
     stopWord = stopWord.word.tolist()
     jieba.re_han_default = re.compile(

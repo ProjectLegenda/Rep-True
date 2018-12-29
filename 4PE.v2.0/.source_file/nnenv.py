@@ -53,7 +53,7 @@ def getConnectable():
     + str(loaded_dict['server_port']) \
     + '/'\
     + loaded_dict['database']\
-    + '?auth=CUSTOM'\
+    + '?auth=CUSTOM'
     return(connectable)
 
 #get conn for Pandas
