@@ -3,9 +3,9 @@
 # @Author: Yubo HE
 # @Date:   2018-12-27 10:48:51
 # @Last Modified by:   Yubo HE
-# @Last Modified time: 2018-12-28 15:04:31
+# @Last Modified time: 2018-12-29 16:36:43
 # @Email: yubo.he@cn.imshealth.com
-"""
+""" 
 
 import numpy as np  # linear algebra
 import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
@@ -33,7 +33,6 @@ def timing(f):
         return result
     return wrapper
 
-
 @timing
 def createDictStop():
     """
@@ -41,11 +40,13 @@ def createDictStop():
     """
     print("Loading Dictionary and Stopwords")
     global stopWord
-
-    dic = nn.Dataframefactory("mappingword",sep = '\r\n',iotype=iotype)
-   
-    stopWord = nn.Dataframefactory("stopword",sep = '\r\n',iotype=iotype)
-
+    # dic = pd.read_csv(dic_path + "mappingWordFinal.txt",
+    #                  encoding='utf-8', engine='python', sep='\r\n')
+ 
+    dic = nn.Dataframefactory('mappingword',sep = '\r\n',iotype = iotype)
+    #stopWord = pd.read_csv(dic_path + 'StopWordFinal.txt',
+    #                       encoding='utf-8', engine='python', sep='\r\n')
+    stopWord = nn.Dataframefafactory('stopword',sep = '\r\n', iotype = iotype)
     word = dic.word.tolist()
     stopWord = stopWord.word.tolist()
     jieba.re_han_default = re.compile(
@@ -56,15 +57,14 @@ def createDictStop():
         jieba.add_word(words, frequnecy)
     print("Dictionary and StopWord have been loaded")
 
-
 @timing
 def mappingCbind(tagSimilarWords, tag):
     """
     create mapping file
     """
     # Cut tags into different levels
-    lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '2')]
-    lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '1')]
+    lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == "2")]
+    lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == "1")]
     hcpTags = tag[tag.tag_class == "医生标签"]
 
     # Group by lv2 tag and add the similar words into a list
@@ -89,7 +89,6 @@ def mappingCbind(tagSimilarWords, tag):
 
     return mapping
 
-
 def segContent(sentence):
     """
     切词模块
@@ -102,7 +101,6 @@ def segContent(sentence):
                seg not in stopWord and not re.match('^[0-9|.|%]*$', seg) and not re.match('\s*[\.|\-]\s*', seg)]
 
     return outList
-
 
 @timing
 def titleLabeling(df, keyTable):
@@ -181,8 +179,6 @@ def titleLabeling(df, keyTable):
     return dataFrame
 
 # 数据预处理，返回为五个data frame
-
-
 @timing
 def dataPrepare(wechatRaw, webRaw):
 
@@ -205,11 +201,11 @@ def dataPrepare(wechatRaw, webRaw):
     wechatColList = ["doctorid", "hcp_openid_u_2", "content_id", "content_title",
                      "start_date", "duration", "thumbs_up", "collected", "share"]
 
-    wechatRaw[["thumbs_up", "collected", "share"]] = wechatRaw[["thumbs_up", "collected", "share"]] \
-        .where(wechatRaw[["thumbs_up", "collected", "share"]]
-               .isnull(), 1)\
-        .fillna(0) \
-        .astype(int)
+    
+    wechat_behavior_process = lambda x: 1 if x in ["点击点赞","点击收藏","点击分享"] else 0
+    wechatRaw["thumbs_up"] = wechatRaw["thumbs_up"].apply(wechat_behavior_process)
+    wechatRaw["collected"] = wechatRaw["collected"].apply(wechat_behavior_process)
+    wechatRaw["share"] = wechatRaw["share"].apply(wechat_behavior_process)
 
     wechatFilterd = wechatRaw[~wechatRaw.doctorid.isnull()][wechatColList]
 
@@ -232,9 +228,9 @@ def dataPrepare(wechatRaw, webRaw):
     # use the wechatFilterd and webFilterd for channel preference calculation
 
     # Remove the invalid data: content title is 0
-    validWechatLog = wechatFilterd[~((wechatFilterd.content_title.isnull()) | (wechatFilterd.content_title.isin(content_filtered)))] \
+    validWechatLog = wechatFilterd[~((wechatFilterd.content_title == "") | (wechatFilterd.content_title.isin(content_filtered)))] \
         .reset_index(drop=True)
-    validWebLog = webFilterd[~((webFilterd.content_title.isnull()) | (webFilterd.content_title.isin(content_filtered)))] \
+    validWebLog = webFilterd[~((webFilterd.content_title =="") | (webFilterd.content_title.isin(content_filtered)))] \
         .reset_index(drop=True)
     # use validWechatLog and validWebLog as parameters for reading history without tokens
 
@@ -524,6 +520,8 @@ def get_hcp_label_uniq(mapping):
 
     return hcp_lb_uq
 
+# 创建DUMMY给HCP标签
+
 
 def create_var(labels, uniq_hcp_label):
     return pd.Series(map(lambda x: 1 if x in labels else 0,  uniq_hcp_label))
@@ -531,7 +529,6 @@ def create_var(labels, uniq_hcp_label):
 
 def p2f(x):
     return float(x.strip('%'))/100
-
 
 def get_most_interest_keyword(dataframe, doctorid):
 
@@ -604,25 +601,26 @@ def get_hcp_class(hcp_tech_class, hcp_class_mapping, doctorid, content_pop):
     content_class = content_pop[content_pop["content_title"].isin(hcp_class)]
     return content_class
 
-
 def main():
     print("Designed for Novo4PE-Pilot")
     print("------------------------------------------------------")
     print("Step 1: loading necessary data")
-    tag = nn.Dataframefactory('tag',iotype = iotype) 
-
+    #tag = pd.read_csv('./essential/tag.csv')
+    tag = nn.Dataframefactory('tag',iotype = iotype)
+    #similar = pd.read_csv('./essential/tag_similar_words.csv')
     similar = nn.Dataframefactory('similar',iotype = iotype)
-
     mapping = mappingCbind(similar, tag)
-
-    web = nn.Dataframefactory("web",iotype = iotype)
-
-    wechat = nn.Dataframefactory("wechat",iotype = iotype) 
-
-    novo_hcp = nn.Dataframefactory("novo_hcp",iotype = iotype)
     
-    novo_market = nn.Dataframefactory("novo_hcp_market",iotype = iotype)
-
+    #wechat = pd.read_excel("./essential/wechat_mengbo.xlsx")
+    wechat = nn.Dataframefactory('wechat',iotype = iotype)
+    #web = pd.read_excel("./essential/web_mengbo.xlsx")
+    web = nn.Dataframefactory('web',iotype = iotype)
+    
+    #novo_hcp = pd.read_csv("./essential/novo_hcp")
+    novo_hcp = nn.Dataframefactory('novo_hcp',iotype = iotype)
+    
+    #novo_market = pd.read_csv("./essential/novo_hcp_market")
+    novo_market = nn.Dataframefactory('novo_hcp_market',iotype = iotype)
     print("Step 1: Done")
     print("------------------------------------------------------")
     print("Step 2: Creating dictionary")
@@ -723,11 +721,11 @@ def main():
     print("------------------------------------------------------")
     print("ALL COMPLETE")
 
-    nn.write(output1,'hcp_channel_preference',iotype = iotype)
-    nn.write(output2,'hcp_content_interest',iotype = iotype)
-    nn.write(output3,'hcp_content_interest_keyword',iotype = iotype)
-    nn.write(output4,'hcp_reading_history',iotype = iotype)
-    nn.write(output5,'hcp_recommendation',iotype = iotype)
-  
+    nn.write_table(output1,'hcp_channel_preference',iotype = iotype)
+    nn.write_table(output2,'hcp_content_interest',iotype = iotype)
+    nn.write_table(output3,'hcp_content_interest_keyword',iotype = iotype)
+    nn.write_table(output4,'hcp_reading_history',iotype = iotype)
+    nn.write_table(output5,'hcp_recommendation',iotype = iotype)
+
     return(1)
 
