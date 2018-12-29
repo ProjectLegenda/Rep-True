@@ -47,7 +47,7 @@ def createDictStop():
     stopWord = nn.Dataframefactory("stopword",sep = '\r\n',iotype=iotype)
 
     word = dic.word.tolist()
-    stopWord = stopWord.stopword.tolist()
+    stopWord = stopWord.word.tolist()
     jieba.re_han_default = re.compile(
         r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
     frequnecy = 1000000000000000000000
@@ -63,8 +63,8 @@ def mappingCbind(tagSimilarWords, tag):
     create mapping file
     """
     # Cut tags into different levels
-    lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == 2)]
-    lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == 1)]
+    lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '2')]
+    lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '1')]
     hcpTags = tag[tag.tag_class == "医生标签"]
 
     # Group by lv2 tag and add the similar words into a list
@@ -724,10 +724,10 @@ def main():
     print("ALL COMPLETE")
 
     nn.write(output1,'hcp_channel_preference',iotype = iotype)
-    nn.write(output1,'hcp_content_interest',iotype = iotype)
-    nn.write(output1,'hcp_content_interest_keyword',iotype = iotype)
-    nn.write(output1,'hcp_reading_history',iotype = iotype)
-    nn.write(output1,'hcp_recommendation',iotype = iotype)
+    nn.write(output2,'hcp_content_interest',iotype = iotype)
+    nn.write(output3,'hcp_content_interest_keyword',iotype = iotype)
+    nn.write(output4,'hcp_reading_history',iotype = iotype)
+    nn.write(output5,'hcp_recommendation',iotype = iotype)
   
     return(1)
 
