@@ -41,7 +41,7 @@ def write_table(data_frame,table_name,sep = ',',iotype = 'fs'):
     ##connect database
         conn=engine.connect() 
     ##initilize hive_sql
-        hive_sql_ = 'LOAD DATA LOCAL INPATH \'' + path_tmp_file + '\' OVERWRITE INTO TABLE ' + table_name
+        hive_sql_ = 'LOAD DATA LOCAL INPATH \'' + path_tmp_file + '\' OVERWRITE INTO TABLE ' + nnenv.getItem(table_name)
 
     ##execute hive_sql
         result=conn.execute(hive_sql_)
