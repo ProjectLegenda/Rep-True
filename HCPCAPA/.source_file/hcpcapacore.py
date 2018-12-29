@@ -11,11 +11,10 @@ import itertools
 import nndw as nn
 #import nndw as nn
 
-iotype = 'fs'
+iotype = 'db'
 
 def chordStatsBySeg(data, segId):
     segAllData = data
-   
     docTagAggList = []
    
     for docid in set(segAllData["doctorid"]):
@@ -23,32 +22,26 @@ def chordStatsBySeg(data, segId):
         tempData = segAllData[segAllData.doctorid==docid]
         for hcpTagList in tempData["hcp_tag"]:
             for word in hcpTagList:
-                if word not in tagList:
+                if word not in tagList and word != '':
                     tagList.append(word)
        
+        
         tagListDf = pd.DataFrame(data=tagList, columns=["point_one"])
         tagListDf.insert(0, "doctor_id", docid)
        
         docTagAggList.append(tagListDf)
-   
+		
     docTagAggData = pd.concat(docTagAggList, ignore_index=True)
-   
+ 
+    #print(docTagAggData) 
+
     mergedPoints = pd.merge(docTagAggData, docTagAggData, how="inner", left_on="doctor_id", right_on="doctor_id")
-    pointOne = mergedPoints[mergedPoints["point_one_x"]==mergedPoints["point_one_y"]]
-    conditionPoint = mergedPoints[mergedPoints["point_one_x"]!=mergedPoints["point_one_y"]]
-   
-    pointOneAgg = pointOne.groupby("point_one_x").agg({"doctor_id":pd.Series.nunique})
-    pointOneAgg.reset_index(inplace=True)
-    conditionPointsAgg = conditionPoint.groupby(["point_one_x", "point_one_y"]).agg({"doctor_id":pd.Series.nunique})
-    conditionPointsAgg.reset_index(inplace=True)
-   
-    aggAllPoints = pd.merge(pointOneAgg, conditionPointsAgg, how="left", left_on="point_one_x", right_on="point_one_x")
-    aggAllPoints["ratio"] = aggAllPoints["doctor_id_y"] / aggAllPoints["doctor_id_x"]
-   
-    segChordData = aggAllPoints[["point_one_x", "point_one_y", "ratio"]]
+	segChordData = mergedPoints.groupby(["point_one_x", "point_one_y"]).agg({"doctor_id":pd.Series.nunique})
+	segChordData.reset_index(inplace=True)
     segChordData.insert(0, "segment_id", segId)
-    segChordData.rename(columns={"point_one_x":"point_one", "point_one_y":"point_two"}, inplace=True)
-   
+    segChordData.rename(columns={"point_one_x":"point_one", "point_one_y":"point_two", "doctor_id":"count"}, inplace=True)
+	
+	
     return segChordData
 
 # subset data into doctors belongs to segment_id
@@ -184,7 +177,7 @@ def createDictStop():
     #stopWord = pd.read_csv(inPath+"/StopWordFinal.txt", encoding="utf-8", sep="\r\n", engine="python")
     
     word = dic.word.tolist()   
-    stopWord = stopWord.stopword.tolist()
+    stopWord = stopWord.word.tolist()
     jieba.re_han_default =re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/”/“/"/β/α/-]+)', re.UNICODE)
     
     frequnecy = 1000000000000000000000
@@ -209,8 +202,9 @@ def mappingCbind(tagSimilarWords, tag):
     """
 
     # Cut tags into different levels
-    lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == 2)]
-    lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == 1)]
+    
+    lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '2')]
+    lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '1')]
     hcpTags = tag[tag.tag_class == "医生标签"]
 
     # Group by lv2 tag and add the similar words into a list
@@ -230,6 +224,19 @@ def mappingCbind(tagSimilarWords, tag):
 
     # Re-adjust into four columns
     mapping = lv1Hcp[["tag_similar_word", "tag_name_lv2", "tag_name_lv1", "tag_name_hcp"]]
+
+    #print(lv2Tags)
+    #print(lv1Tags)
+    #print(hcpTags)
+    #print(simiList)
+    #print(simiLv2)
+    #print(lv2Lv1)
+    #print(lv1Hcp)
+    #print(mapping)
+    #print(mapping['tag_similar_word'])
+    #print(mapping['tag_name_lv2'])
+    #print(mapping['tag_name_lv1'])
+    #print(mapping['tag_name_hcp'])
 
     return mapping
 
@@ -302,6 +309,8 @@ def titleLabeling(df, keyTable):
         return lv2Label
 
     print("Labelling Title")
+    #print(dataFrame)
+    #print(dataFrame.columns)
     dataFrame[['lv2_tag','hcp_tag',]] = dataFrame['Token'].apply(labelIt)
     dataFrame['lv2_tag'] = dataFrame['lv2_tag'].apply(filterComplication)
     print("Finished Labelling")
@@ -312,13 +321,13 @@ def cbindAllConditions(novoHcpAgg):
     
     data = novoHcpAgg
     
-    title = list(set(data["novo_hcp_ability_detailing_path.academic_title"]))
+    title = list(set(data["academic_title"]))
     title.append("全部")
-    department = list(set(data["novo_hcp_ability_detailing_path.department"]))
+    department = list(set(data["department"]))
     department.append("全部")
-    level = list(set(data["novo_hcp_ability_detailing_path.level"]))
+    level = list(set(data["level"]))
     level.append("全部")
-    detailingPath = list(set(data["novo_hcp_ability_detailing_path.detailing_path_id"]))
+    detailingPath = list(set(data["detailing_path_id"]))
     detailingPath.append("全部")
     
     allCombinations = list(itertools.product(detailingPath, level, title, department))
@@ -340,83 +349,83 @@ def getSegDoctorList(allCbindDf, novoHcpAgg, segment_id):
     #print(detailing_path)
     
     if (title=="全部") & (department=="全部") & (hcp_segment=="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg["customer_code"].tolist()
         
     elif (title=="全部") & (department=="全部") & (hcp_segment=="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                ["customer_code"].tolist()
         
     elif (title=="全部") & (department=="全部") & (hcp_segment!="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment)]\
-                                ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["level"]==hcp_segment)]\
+                                ["customer_code"].tolist()
         
     elif (title=="全部") & (department=="全部") & (hcp_segment!="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["level"]==hcp_segment) 
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
         
     elif (title=="全部") & (department!="全部") & (hcp_segment=="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department)]\
-                                ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["department"]==department)]\
+                                ["customer_code"].tolist()
         
     elif (title=="全部") & (department!="全部") & (hcp_segment=="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["department"]==department) 
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
         
     elif (title=="全部") & (department!="全部") & (hcp_segment!="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["department"]==department) 
+                                   &(novoHcpAgg["level"]==hcp_segment)]\
+                                    ["customer_code"].tolist()
         
     elif (title=="全部") & (department!="全部") & (hcp_segment!="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["department"]==department) 
+                                   &(novoHcpAgg["level"]==hcp_segment) 
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
         
     elif (title!="全部") & (department=="全部") & (hcp_segment=="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title)]\
+                                    ["customer_code"].tolist()
         
     elif (title!="全部") & (department=="全部") & (hcp_segment=="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title) 
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
         
     elif (title!="全部") & (department=="全部") & (hcp_segment!="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title)
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title)
+                                   &(novoHcpAgg["level"]==hcp_segment)]\
+                                    ["customer_code"].tolist()
         
     elif  (title!="全部") & (department=="全部") & (hcp_segment!="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title)
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title)
+                                   &(novoHcpAgg["level"]==hcp_segment) 
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
         
     elif (title!="全部") & (department!="全部") & (hcp_segment=="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title) 
+                                   &(novoHcpAgg["department"]==department)]\
+                                    ["customer_code"].tolist()
         
     elif (title!="全部") & (department!="全部") & (hcp_segment=="全部") & (detailing_path!="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department)
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title) 
+                                   &(novoHcpAgg["department"]==department)
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
         
     elif (title!="全部") & (department!="全部") & (hcp_segment!="全部") & (detailing_path=="全部"):
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title) 
+                                   &(novoHcpAgg["department"]==department) 
+                                   &(novoHcpAgg["level"]==hcp_segment)]\
+                                    ["customer_code"].tolist()
     else:
-        segDoctorList = novoHcpAgg[(novoHcpAgg["novo_hcp_ability_detailing_path.academic_title"]==title) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.department"]==department) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.level"]==hcp_segment) 
-                                   &(novoHcpAgg["novo_hcp_ability_detailing_path.detailing_path_id"]==detailing_path)]\
-                                    ["novo_hcp_ability_detailing_path.customer_code"].tolist()
+        segDoctorList = novoHcpAgg[(novoHcpAgg["academic_title"]==title) 
+                                   &(novoHcpAgg["department"]==department) 
+                                   &(novoHcpAgg["level"]==hcp_segment) 
+                                   &(novoHcpAgg["detailing_path_id"]==detailing_path)]\
+                                    ["customer_code"].tolist()
 
     return segDoctorList
 
@@ -426,38 +435,59 @@ def getSegDoctorList(allCbindDf, novoHcpAgg, segment_id):
 def main():
     tag = nn.Dataframefactory("tag",iotype = iotype)
     #tag = pd.read_excel(inPath+"/20181219_hcp_tag.xlsx")
-    
+    #print('tag_') 
+    #print(tag)
     simi = nn.Dataframefactory("similar",iotype = iotype)
     #simi = pd.read_excel(inPath+"/20181219_tag_simi.xlsx")
-
+    
     mapping =  mappingCbind(simi,tag)
     createDictStop()
     
+    #print('mapping_')
+    #print(mapping)
+
     novoHcpAgg = nn.Dataframefactory("hcp_ability_detailing",iotype = iotype)
-    #novoHcpAgg = pd.read_csv(inPath+"/novo_hcp_ability_detailing_path.txt", encoding="utf-8", engine="python")
-    doctorList = list(set(novoHcpAgg["novo_hcp_ability_detailing_path.customer_code"]))
+    
+    #print('novoHcpAgg_')
+    #print(novoHcpAgg)
+    #novoHcpAgg = pd.read_csv(inPath+"/txt", encoding="utf-8", engine="python")
+    doctorList = list(set(novoHcpAgg["customer_code"]))
     
     wechat = nn.Dataframefactory("wechat",iotype = iotype)
+
+    #print('wechat_')
+    #print(wechat)
     #wechat = pd.read_excel(inPath+"/webchat_content_view.xlsx")
     
     web = nn.Dataframefactory("web",iotype = iotype)
+    #print('web_')
+    #print(web)
     #web = pd.read_excel(inPath+"/pc_data.xlsx")
 
     # 整合微信和网站的数据到同一个df
     cbindBehavData = dataPrepare(wechat, web, doctorList)
+   
+    #print('cbindBehavData_')
+    #print(cbindBehavData)
     print("Finished Data preparation")
     
     contentTitle = cbindBehavData['content_title'].dropna().drop_duplicates().to_frame()
     contentLabeled = titleLabeling(contentTitle,mapping)
     allBehavDataLabelled= cbindBehavData.merge(contentLabeled,left_on='content_title',right_on='content_title')
     allBehavDataLabelled["month_id"] = allBehavDataLabelled["start_date"].apply(getMonthId)
+    validBehavDataLabelled = allBehavDataLabelled[allBehavDataLabelled.lv2_tag.str.len() != 0]
 
+    #print('-------------------')
+    #print(validBehavDataLabelled)
+
+    #validBehavDataLabelled.to_csv('ttt.csvvx')
+    #print('...................')
     # segment mapping file, write this table to Hive
     allCbindDf = cbindAllConditions(novoHcpAgg)
     print("Created segment mapping file")
     
     # do lv2 tag stats and get the top 15 labels
-    allLv2Stats = statsByLevel(allBehavDataLabelled, "lv2_tag")
+    allLv2Stats = statsByLevel(validBehavDataLabelled, "lv2_tag")
     topLv2LabelsDf = getTopNLabels(allLv2Stats, 15)
     print("Found top 15 tags of all doctors")
     
@@ -470,12 +500,15 @@ def main():
     for segId in allCbindDf["segment_id"]:
         segDocList = getSegDoctorList(allCbindDf, novoHcpAgg, segId)
         if len(segDocList) != 0:
-            segBehavData = allBehavDataLabelled[allBehavDataLabelled["doctorid"].isin(segDocList)]
-            segHeatData = statsBySegment(segBehavData, segId, topLv2LabelsDf)
-            heatMapPart.append(segHeatData)
-            segChordData = chordStatsBySeg(segBehavData, segId)
-            chordMapPart.append(segChordData)
+            segBehavData = validBehavDataLabelled[validBehavDataLabelled["doctorid"].isin(segDocList)]
+            if segBehavData.shape[0] != 0:
+                segHeatData = statsBySegment(segBehavData, segId, topLv2LabelsDf)
+                heatMapPart.append(segHeatData)
+                segChordData = chordStatsBySeg(segBehavData, segId)
+                if segChordData.shape[0] != 0:
+                    chordMapPart.append(segChordData)
        
+    #print(heatMapPart)
     heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
     chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
     print("Finished calculating")
@@ -485,4 +518,5 @@ def main():
     nn.write_table(allCbindDf,'segmentmapping',iotype = iotype)
     
     return (1)   
+
 
