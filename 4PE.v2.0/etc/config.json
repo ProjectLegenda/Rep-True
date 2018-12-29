@@ -1,0 +1,24 @@
+{
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"admin4PEdwc",
+  "password":"whatever",
+  "database":"novodb",
+  "auth":"CUSTOM",
+  "tag":"hcp_tag",
+  "similar":"tag_simi.csv",
+  "mappingword":"iqvia_mappingwordfinal",
+  "stopword":"iqvia_stopwordfinal",
+  "tmp_dir":"/tmp",
+  "novo_hcp":"novo_hcp",
+  "novo_hcp_market":"novo_hcp_market",
+  "web":"itangyi_web_hcp_content_view",
+  "wechat":"itangyi_wechat_hcp_content_view",
+  "hcp_channel_preference":"iqvia_hcp_channel_preference",
+  "hcp_content_interest":"iqvia_hcp_content_interest",
+  "hcp_content_interest_keyword":"iqvia_content_interest_keyword",
+  "hcp_reading_history":"iqvia_hcp_reading_history",
+  "hcp_recommendation":"iqvia_4pe_hcp_recommendation"
+}
+
