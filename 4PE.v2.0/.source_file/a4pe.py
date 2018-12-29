@@ -341,7 +341,7 @@ def calContKeyWord(taggedDf, hcp_id, lb, other_tag, mapping, keytable):
     #
     contKey = {}
     for key in dicHcpLb.keys():
-        lv2LbList = df.loc[dicHcpLb[key]].二级标签.tolist()
+        lv2LbList = df.loc[dicHcpLb[key]]["二级标签"].tolist()
         lv2label = keytable[keytable['tag_name_hcp']
                             == key].tag_name_lv2.tolist()
         flatList = [item for sublist in lv2LbList for item in sublist]
@@ -611,7 +611,7 @@ def main():
     print("Step 1: loading necessary data")
     tag = nn.Dataframefactory('tag',iotype = iotype) 
 
-    simi = nn.Dataframefactory('similar',iotype = iotype)
+    similar = nn.Dataframefactory('similar',iotype = iotype)
 
     mapping = mappingCbind(similar, tag)
 

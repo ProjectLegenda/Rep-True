@@ -7,7 +7,7 @@ import os
 
 ##Read Json file in dictionary ./
 def getJsonDict():
-    etc_dir = os.environ.get('HCPCAPA_HOME')
+    etc_dir = os.environ.get('A4PE_HOME')
     with open( str(etc_dir) + '/./etc/config.json','r') as loaded_f:
         loaded_dict = json.load(loaded_f)
     return(loaded_dict)
@@ -53,8 +53,7 @@ def getConnectable():
     + str(loaded_dict['server_port']) \
     + '/'\
     + loaded_dict['database']\
-    #+ '?auth='\
-    #+ loaded_dict['auth']
+    + '?auth=CUSTOM'\
     return(connectable)
 
 #get conn for Pandas
