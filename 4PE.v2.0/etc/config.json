@@ -17,7 +17,7 @@
   "wechat":"itangyi_wechat_hcp_content_view",
   "hcp_channel_preference":"iqvia_hcp_channel_preference",
   "hcp_content_interest":"iqvia_hcp_content_interest",
-  "hcp_content_interest_keyword":"iqvia_content_interest_keyword",
+  "hcp_content_interest_keyword":"iqvia_hcp_content_interest_keyword",
   "hcp_reading_history":"iqvia_hcp_reading_history",
   "hcp_recommendation":"iqvia_4pe_hcp_recommendation"
 }

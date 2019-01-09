@@ -53,8 +53,8 @@ def getConnectable():
     + str(loaded_dict['server_port']) \
     + '/'\
     + loaded_dict['database']\
-    #+ '?auth='\
-    #+ loaded_dict['auth']
+    + '?auth='\
+    + loaded_dict['auth']
     return(connectable)
 
 #get conn for Pandas

@@ -26,7 +26,7 @@ def Joblibfactory(vectorizer):
     return(joblib.load(nnenv.getResourcePath() + vectorizer))
 
 
-def write_table(data_frame,table_name,sep = ',',iotype = 'fs'):
+def write_table(data_frame,table_name,sep = ',',iotype = 'fs',remove_tmpfile = True):
     
     if iotype == 'fs':
         data_frame.to_csv(nnenv.getResourcePath() + nnenv.getItem(table_name),sep=sep,index = False)  
@@ -46,6 +46,7 @@ def write_table(data_frame,table_name,sep = ',',iotype = 'fs'):
     ##execute hive_sql
         result=conn.execute(hive_sql_)
         result.close()
+        
     else:
         print('IOtype is only for db or fs')
         raise(Exception)

@@ -9,7 +9,6 @@ from datetime import datetime
 
 import itertools
 import nndw as nn
-#import nndw as nn
 
 iotype = 'db'
 
@@ -32,12 +31,10 @@ def chordStatsBySeg(data, segId):
         docTagAggList.append(tagListDf)
 		
     docTagAggData = pd.concat(docTagAggList, ignore_index=True)
- 
-    #print(docTagAggData) 
-
+	
     mergedPoints = pd.merge(docTagAggData, docTagAggData, how="inner", left_on="doctor_id", right_on="doctor_id")
-	segChordData = mergedPoints.groupby(["point_one_x", "point_one_y"]).agg({"doctor_id":pd.Series.nunique})
-	segChordData.reset_index(inplace=True)
+    segChordData = mergedPoints.groupby(["point_one_x", "point_one_y"]).agg({"doctor_id":pd.Series.nunique})
+    segChordData.reset_index(inplace=True)
     segChordData.insert(0, "segment_id", segId)
     segChordData.rename(columns={"point_one_x":"point_one", "point_one_y":"point_two", "doctor_id":"count"}, inplace=True)
 	
@@ -46,20 +43,14 @@ def chordStatsBySeg(data, segId):
 
 # subset data into doctors belongs to segment_id
 def statsBySegment(data, segment_id, topLv2LabelsDf):
-    segAllData = data
-    topLabels = topLv2LabelsDf.copy()
+    segAllData = data.copy()
     statsList = []
     months = getOneYrMonths()
     
     for month_id in months:
+        topLabels = topLv2LabelsDf.copy()
         subStats = statsByMonthId(segAllData, month_id)
-        #print(subStats)
-        #print("    ")
-        #print(topLabels)
-        #print("    ")
-        #print(topLv2LabelsDf)
-        #print("    ")
-        
+
         if len(subStats)==0:
             segMonthMerge = topLabels
             segMonthMerge["tag_count"] = 0
@@ -67,15 +58,9 @@ def statsBySegment(data, segment_id, topLv2LabelsDf):
             segMonthMerge = pd.merge(topLv2LabelsDf, subStats, how="left", left_on="tag_name", right_on=subStats.index)
             
         segMonthMerge["month"] = month_id
-        #print(segMonthMerge)
-        #print("    ")
-        #print("    ")
-        #print("    ")
-        #print("    ")
         statsList.append(segMonthMerge)
     
     statsBySeg = pd.concat(statsList, ignore_index=True)
-    #statsBySeg["segment_id"] = segment_id
     statsBySeg.insert(loc=0, column="segment_id", value=segment_id)
     heatMapDataBySeg = statsBySeg.fillna(0)
     
@@ -100,9 +85,7 @@ def statsByLevel(data, lvl):
             resList.append(word)
     
     df = pd.DataFrame({"tag_count":resList})
-    #print(df)
     stats = df["tag_count"].value_counts().to_frame(name="tag_count")
-    #print(stats)
     
     return stats
 
@@ -128,7 +111,7 @@ def getMonthId(date):
 def getOneYrMonths():
     months = []
     
-    for n in range(0, 12):
+    for n in range(0, 19):
         temp = datetime.now() - dt.timedelta(n*365/12)
         monthId = getMonthId(temp)
         months.append(monthId)
@@ -142,24 +125,20 @@ def dataPrepare(wechatRaw, webRaw, doctorList):
     # filter wechat data in doctorList 
     wechatColList = ["doctorid", "hcp_openid_u_2", "content_id", "content_title", "start_date", "duration"]
     wechatFilterd = wechatRaw[wechatRaw["doctorid"].isin(doctorList)][wechatColList]
-    #print(wechatFilterd.shape)
     
     # filter web data in doctorList 
     webColList = ["doctorid", "content_id", "content_title", "start_date", "end_date"]
     webFilterd = webRaw[webRaw["doctorid"].isin(doctorList)][webColList]
-    #print(webFilterd.shape)
-    
+
     # Remove the invalid data: content title is 0
-    validWechatLog = wechatFilterd[~(wechatFilterd.content_title == "0")].reset_index(drop=True)
-    validWebLog = webFilterd[~(webFilterd.content_title == "0")].reset_index(drop=True)
-    #print(validWechatLog.shape)
-    #print(validWebLog.shape)
-    
+    validWechatLog = wechatFilterd[~((wechatFilterd.content_title == "") | (wechatFilterd.content_title.isnull()))].reset_index(drop=True)
+    validWebLog = webFilterd[~((webFilterd.content_title == "") | (webFilterd.content_title.isnull()))].reset_index(drop=True)
+
     # fill open id as null into webLog and concat required data into one df
     validWebLog.insert(1, "hcp_openid_u_2", np.nan)
     cbindData = pd.concat([validWechatLog[["doctorid", "hcp_openid_u_2", "content_title", "start_date"]],\
                                  validWebLog[["doctorid", "hcp_openid_u_2", "content_title", "start_date"]]]).reset_index(drop=True)
-    #print(cbindData.shape)
+
     return cbindData
 
 
@@ -170,11 +149,8 @@ def createDictStop():
     print("Loading Dictionary and Stopwords")
     global stopWord
     
-    dic = nn.Dataframefactory("mappingword",sep = '\r\n',iotype=iotype)
-    #dic = pd.read_csv(inPath+"/mappingWords_20181219.txt", sep="\r\n", engine="python")
-    
+    dic = nn.Dataframefactory("mappingword",sep = '\r\n',iotype=iotype)    
     stopWord = nn.Dataframefactory("stopword",sep = '\r\n',iotype=iotype)
-    #stopWord = pd.read_csv(inPath+"/StopWordFinal.txt", encoding="utf-8", sep="\r\n", engine="python")
     
     word = dic.word.tolist()   
     stopWord = stopWord.word.tolist()
@@ -202,7 +178,6 @@ def mappingCbind(tagSimilarWords, tag):
     """
 
     # Cut tags into different levels
-    
     lv2Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '2')]
     lv1Tags = tag[(tag.tag_class == "内容标签") & (tag.tag_level == '1')]
     hcpTags = tag[tag.tag_class == "医生标签"]
@@ -224,19 +199,6 @@ def mappingCbind(tagSimilarWords, tag):
 
     # Re-adjust into four columns
     mapping = lv1Hcp[["tag_similar_word", "tag_name_lv2", "tag_name_lv1", "tag_name_hcp"]]
-
-    #print(lv2Tags)
-    #print(lv1Tags)
-    #print(hcpTags)
-    #print(simiList)
-    #print(simiLv2)
-    #print(lv2Lv1)
-    #print(lv1Hcp)
-    #print(mapping)
-    #print(mapping['tag_similar_word'])
-    #print(mapping['tag_name_lv2'])
-    #print(mapping['tag_name_lv1'])
-    #print(mapping['tag_name_hcp'])
 
     return mapping
 
@@ -291,11 +253,11 @@ def titleLabeling(df, keyTable):
         #labels = list(set(labels))
         #labels = [ x for x in labels if str(x) != 'nan']
         lv2Lb= list(set(lv2Lb))
-        lv2Lb = [ x for x in lv2Lb if str(x) != 'nan']
+        lv2Lb = [ x for x in lv2Lb if x != '']
         #lv1Lb= list(set(lv1Lb))
         #lv1Lb = [ x for x in lv1Lb if str(x) != 'nan']
         funcLb= list(set(funcLb))
-        funcLb = [ x for x in funcLb if str(x) != 'nan']
+        funcLb = [ x for x in funcLb if x != '']
 
         return pd.Series([lv2Lb, funcLb])
 
@@ -309,8 +271,6 @@ def titleLabeling(df, keyTable):
         return lv2Label
 
     print("Labelling Title")
-    #print(dataFrame)
-    #print(dataFrame.columns)
     dataFrame[['lv2_tag','hcp_tag',]] = dataFrame['Token'].apply(labelIt)
     dataFrame['lv2_tag'] = dataFrame['lv2_tag'].apply(filterComplication)
     print("Finished Labelling")
@@ -332,7 +292,6 @@ def cbindAllConditions(novoHcpAgg):
     
     allCombinations = list(itertools.product(detailingPath, level, title, department))
     allCbindDf = pd.DataFrame(data=allCombinations, columns=["detailing_path", "hcp_segment", "title", "department"])
-    #allCbindDf["segment_id"] = allCbindDf.index + 1
     allCbindDf.insert(loc=0, column="segment_id", value=allCbindDf.index+1)
     
     return allCbindDf
@@ -340,13 +299,9 @@ def cbindAllConditions(novoHcpAgg):
 	
 def getSegDoctorList(allCbindDf, novoHcpAgg, segment_id):
     title = allCbindDf[allCbindDf["segment_id"]==segment_id]["title"][segment_id-1]
-    #print(title)
     department = allCbindDf[allCbindDf["segment_id"]==segment_id]["department"][segment_id-1]
-    #print(department)
     hcp_segment = allCbindDf[allCbindDf["segment_id"]==segment_id]["hcp_segment"][segment_id-1]
-    #print(hcp_segment)
     detailing_path = allCbindDf[allCbindDf["segment_id"]==segment_id]["detailing_path"][segment_id-1]
-    #print(detailing_path)
     
     if (title=="全部") & (department=="全部") & (hcp_segment=="全部") & (detailing_path=="全部"):
         segDoctorList = novoHcpAgg["customer_code"].tolist()
@@ -434,41 +389,20 @@ def getSegDoctorList(allCbindDf, novoHcpAgg, segment_id):
 
 def main():
     tag = nn.Dataframefactory("tag",iotype = iotype)
-    #tag = pd.read_excel(inPath+"/20181219_hcp_tag.xlsx")
-    #print('tag_') 
-    #print(tag)
     simi = nn.Dataframefactory("similar",iotype = iotype)
-    #simi = pd.read_excel(inPath+"/20181219_tag_simi.xlsx")
     
     mapping =  mappingCbind(simi,tag)
     createDictStop()
-    
-    #print('mapping_')
-    #print(mapping)
 
     novoHcpAgg = nn.Dataframefactory("hcp_ability_detailing",iotype = iotype)
     
-    #print('novoHcpAgg_')
-    #print(novoHcpAgg)
-    #novoHcpAgg = pd.read_csv(inPath+"/txt", encoding="utf-8", engine="python")
     doctorList = list(set(novoHcpAgg["customer_code"]))
     
-    wechat = nn.Dataframefactory("wechat",iotype = iotype)
-
-    #print('wechat_')
-    #print(wechat)
-    #wechat = pd.read_excel(inPath+"/webchat_content_view.xlsx")
-    
+    wechat = nn.Dataframefactory("wechat",iotype = iotype)    
     web = nn.Dataframefactory("web",iotype = iotype)
-    #print('web_')
-    #print(web)
-    #web = pd.read_excel(inPath+"/pc_data.xlsx")
 
     # 整合微信和网站的数据到同一个df
     cbindBehavData = dataPrepare(wechat, web, doctorList)
-   
-    #print('cbindBehavData_')
-    #print(cbindBehavData)
     print("Finished Data preparation")
     
     contentTitle = cbindBehavData['content_title'].dropna().drop_duplicates().to_frame()
@@ -477,11 +411,6 @@ def main():
     allBehavDataLabelled["month_id"] = allBehavDataLabelled["start_date"].apply(getMonthId)
     validBehavDataLabelled = allBehavDataLabelled[allBehavDataLabelled.lv2_tag.str.len() != 0]
 
-    #print('-------------------')
-    #print(validBehavDataLabelled)
-
-    #validBehavDataLabelled.to_csv('ttt.csvvx')
-    #print('...................')
     # segment mapping file, write this table to Hive
     allCbindDf = cbindAllConditions(novoHcpAgg)
     print("Created segment mapping file")
@@ -508,15 +437,22 @@ def main():
                 if segChordData.shape[0] != 0:
                     chordMapPart.append(segChordData)
        
-    #print(heatMapPart)
     heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
     chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
     print("Finished calculating")
+
+    objNovoHcpAgg = novoHcpAgg.astype("object")
+    mergeSegID = pd.merge(objNovoHcpAgg, allCbindDf, how="left", 
+         left_on=["detailing_path_id", "level", "academic_title", "department"], 
+         right_on=["detailing_path", "hcp_segment","title","department"])
+    customerCodeSegId = mergeSegID[["customer_code", "segment_id"]]
     
     nn.write_table(heatMapOutput,'heatmap',iotype = iotype)    
     nn.write_table(chordMapOutput,'chordmap', iotype = iotype)
     nn.write_table(allCbindDf,'segmentmapping',iotype = iotype)
+    nn.write_table(customerCodeSegId,'customerCodeSegId',iotype = iotype)
     
     return (1)   
+
 
 

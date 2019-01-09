@@ -1,3 +1,8 @@
+
 import hcpcapacore 
-hcpcapacore.main()
+
+if hcpcapacore.main() == 1:
+    print('[INFO]Algorithm done')
+
+
 

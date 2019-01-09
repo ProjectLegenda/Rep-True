@@ -149,13 +149,13 @@ def titleLabeling(df, keyTable):
                     funcLb.append(row['tag_name_hcp'])
 
         labels = list(set(labels))
-        labels = [x for x in labels if str(x) != 'nan']
+        labels = [x for x in labels if x != '' ]
         lv2Lb = list(set(lv2Lb))
-        lv2Lb = [x for x in lv2Lb if str(x) != 'nan']
+        lv2Lb = [x for x in lv2Lb if x != '' ]
         lv1Lb = list(set(lv1Lb))
-        lv1Lb = [x for x in lv1Lb if str(x) != 'nan']
+        lv1Lb = [x for x in lv1Lb if x != '' ]
         funcLb = list(set(funcLb))
-        funcLb = [x for x in funcLb if str(x) != 'nan']
+        funcLb = [x for x in funcLb if x != '']
 
         return pd.Series([labels, funcLb, lv1Lb, lv2Lb])
 
@@ -203,7 +203,7 @@ def dataPrepare(wechatRaw, webRaw):
     wechatRaw["collected"] = wechatRaw["collected"].apply(wechat_behavior_process)
     wechatRaw["share"] = wechatRaw["share"].apply(wechat_behavior_process)
 
-    wechatFilterd = wechatRaw[~wechatRaw.doctorid.isnull()][wechatColList]
+    wechatFilterd = wechatRaw[~(wechatRaw.doctorid.isnull() | (wechatRaw.doctorid==""))][wechatColList]
 
     # filter web data having doctorid
     webColList = ["doctorid", "content_id",
@@ -219,7 +219,7 @@ def dataPrepare(wechatRaw, webRaw):
     webRaw["key_operation"].fillna("空", inplace=True)
     webRaw[["thumbs_up", "collected", "share"]
            ] = webRaw["key_operation"].apply(web_behavior_process)
-    webFilterd = webRaw[~webRaw.doctorid.isnull()][webColList]
+    webFilterd = webRaw[~(webRaw.doctorid.isnull() |( webRaw.doctorid==""))][webColList]
 
     # use the wechatFilterd and webFilterd for channel preference calculation
 
@@ -431,7 +431,7 @@ def webHistWithoutTokens(webLog):
 def wechatHistWithoutTokens(wechatLog):
 
     # filter the data with view lenth >= 30s
-    validLog = wechatLog[wechatLog.duration >= 30].reset_index(drop=True)
+    validLog = wechatLog[pd.to_numeric(wechatLog.duration,errors='coerce') >= 30].reset_index(drop=True)
 
     # filter the required columns
     resCbind = validLog[["hcp_openid_u_2", "doctorid",
