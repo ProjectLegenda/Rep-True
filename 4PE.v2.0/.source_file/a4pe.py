@@ -3,7 +3,7 @@
 # @Author: Yubo HE
 # @Date:   2018-12-27 10:48:51
 # @Last Modified by:   Yubo HE
-# @Last Modified time: 2018-12-29 16:36:43
+# @Last Modified time: 2018-12-29 21:43:29
 # @Email: yubo.he@cn.imshealth.com
 """ 
 
@@ -19,9 +19,7 @@ from collections import Counter
 from functools import wraps
 from time import time
 import nndw as nn
-
 iotype = 'db'
-
 def timing(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -40,13 +38,11 @@ def createDictStop():
     """
     print("Loading Dictionary and Stopwords")
     global stopWord
-    # dic = pd.read_csv(dic_path + "mappingWordFinal.txt",
-    #                  encoding='utf-8', engine='python', sep='\r\n')
- 
     dic = nn.Dataframefactory('mappingword',sep = '\r\n',iotype = iotype)
     #stopWord = pd.read_csv(dic_path + 'StopWordFinal.txt',
     #                       encoding='utf-8', engine='python', sep='\r\n')
     stopWord = nn.Dataframefactory('stopword',sep = '\r\n', iotype = iotype)
+    word = dic.word.tolist()
     word = dic.word.tolist()
     stopWord = stopWord.word.tolist()
     jieba.re_han_default = re.compile(
@@ -202,7 +198,7 @@ def dataPrepare(wechatRaw, webRaw):
                      "start_date", "duration", "thumbs_up", "collected", "share"]
 
     
-    wechat_behavior_process = lambda x: 1 if x in ["点击点赞","点击收藏","点击分享"] else 0
+    wechat_behavior_process = lambda x: 1 if x in ["点击点赞","点击收藏","点击分享","分享"] else 0
     wechatRaw["thumbs_up"] = wechatRaw["thumbs_up"].apply(wechat_behavior_process)
     wechatRaw["collected"] = wechatRaw["collected"].apply(wechat_behavior_process)
     wechatRaw["share"] = wechatRaw["share"].apply(wechat_behavior_process)
@@ -330,7 +326,7 @@ def calContKeyWord(taggedDf, hcp_id, lb, other_tag, mapping, keytable):
     for idx, key in enumerate(lb.keys()):
         l = []
         for i, row in df.iterrows():
-            if key in row.HCP标签:
+            if key in row["HCP标签"]:
                 l.append(i)
         dicHcpLb[key] = l
 
@@ -351,7 +347,8 @@ def calContKeyWord(taggedDf, hcp_id, lb, other_tag, mapping, keytable):
         for k in other_tag:
             contKey.pop(k, None)
 
-    keywordCnt = pd.DataFrame()
+    keywordCnt = pd.DataFrame(columns = ['HCP_ID', 'Content_Interest_ID',
+                 'keyword', 'keyword_count', 'last_update'])
     for key, item in contKey.items():
         #keywordCnt['Content_Interest_ID'] = key
         df_join = pd.DataFrame.from_dict(
@@ -605,22 +602,25 @@ def main():
     print("Designed for Novo4PE-Pilot")
     print("------------------------------------------------------")
     print("Step 1: loading necessary data")
-    #tag = pd.read_csv('./essential/tag.csv')
+    
+    
+
     tag = nn.Dataframefactory('tag',iotype = iotype)
     #similar = pd.read_csv('./essential/tag_similar_words.csv')
     similar = nn.Dataframefactory('similar',iotype = iotype)
     mapping = mappingCbind(similar, tag)
-    
+
     #wechat = pd.read_excel("./essential/wechat_mengbo.xlsx")
     wechat = nn.Dataframefactory('wechat',iotype = iotype)
     #web = pd.read_excel("./essential/web_mengbo.xlsx")
     web = nn.Dataframefactory('web',iotype = iotype)
-    
+
     #novo_hcp = pd.read_csv("./essential/novo_hcp")
     novo_hcp = nn.Dataframefactory('novo_hcp',iotype = iotype)
-    
+
     #novo_market = pd.read_csv("./essential/novo_hcp_market")
     novo_market = nn.Dataframefactory('novo_hcp_market',iotype = iotype)
+
     print("Step 1: Done")
     print("------------------------------------------------------")
     print("Step 2: Creating dictionary")
@@ -691,13 +691,16 @@ def main():
             .content_title \
             .reset_index(drop=True)
     ###################################################################################################
-        inst_list = get_most_interest_keyword(o2, doc_id)
-        personal_rec = content_lb_pop[content_lb_pop[inst_list].any(1)]
-        test["method2"] = personal_rec[~personal_rec["content_title"].isin(hcp_reading_history.get(doc_id))] \
-            .sort_values('popularity', ascending=False) \
-            .head(5) \
-            .content_title \
-            .reset_index(drop=True)
+        try:
+            inst_list = get_most_interest_keyword(o2, doc_id)
+            personal_rec = content_lb_pop[content_lb_pop[inst_list].any(1)]
+            test["method2"] = personal_rec[~personal_rec["content_title"].isin(hcp_reading_history.get(doc_id))] \
+                .sort_values('popularity', ascending=False) \
+                .head(5) \
+                .content_title \
+                .reset_index(drop=True)
+        except IndexError:
+            test["method2"] = np.nan
     ###################################################################################################
         try:
             hcp_class_content = get_hcp_class(
@@ -728,4 +731,3 @@ def main():
     nn.write_table(output5,'hcp_recommendation',iotype = iotype)
 
     return(1)
-
