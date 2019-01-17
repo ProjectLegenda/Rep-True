@@ -1,12 +1,15 @@
 from etlsource import *
 from parser import *
- 
+from transformer import *
+
 class EtlsourceCreator():
     
     def __init__(self,etlsource_type = 'sql'):
         
         if etlsource_type =='sql':
-            self.creator = Sqletlsource
+            self.creator = Sqlsource
+        elif etlsource_type =='gen':
+            self.creator = Gensource
         elif etlsource_type =='ori':
             self.creator = Etlsource
         else:
@@ -26,10 +29,23 @@ class ParserCreator():
 
        else:
            print('Invalid parser_type')
-
+           raise(Exception)
+             
    def create(self):
        return(self.creator())
 
+class TransformerCreator():
+    
+    def __init__(self,product_type = 'simplehtmlextractor'):
+     
+        if product_type == 'simplehtmlextractor':
+            self.creator = HTMLdataextractor
+        else:
+            print('Invalid transformer type')
+            raise(Exception)
+       
+    def create(self):
+        return(self.creator())
 
 class CreatorCreator():
 
@@ -41,6 +57,8 @@ class CreatorCreator():
         elif kwargs['source'] == 'parser':
             self.creator = ParserCreator
         
+        elif kwargs['source'] == 'transformer':
+            self.creator = TransformerCreator
         else:
             raise(Exception)
      
@@ -52,18 +70,9 @@ class CreatorCreator():
 
 def FlatCreator(**kwargs):
 
-    if kwargs['source'] == 'etlsource':
-        creator = EtlsourceCreator
-    
-    elif kwargs['source'] == 'parser':
-        creator = ParserCreator
+    creator = CreatorCreator(**kwargs)
 
-    else:
-        raise(Exception)
-
-    product_type = kwargs['product_type']
-
-    return(creator(product_type).create())
+    return(creator.create())
 
 
  
