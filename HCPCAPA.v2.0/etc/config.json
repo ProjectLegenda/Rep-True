@@ -1,0 +1,20 @@
+{
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"admin4PEdwc",
+  "password":"whatever",
+  "database":"novodb",
+  "auth":"CUSTOM",
+  "tag":"hcp_tag",
+  "similar":"tag_similar_words",
+  "mappingword":"iqvia_mappingwordfinal",
+  "stopword":"iqvia_stopwordfinal",
+  "tmp_dir":"/tmp",
+  "hcp_ability_detailing":"novo_hcp_ability_detailing_path",
+  "web":"itangyi_web_hcp_content_view",
+  "wechat":"itangyi_wechat_hcp_content_view",
+  "hcp_heatmap":"iqvia_hcp_capa_heatmap",
+  "hcp_chordmap":"iqvia_hcp_capa_chordmap"
+}
+
