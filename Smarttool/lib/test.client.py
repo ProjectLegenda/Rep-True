@@ -17,10 +17,11 @@ print(cc.getDict('../resource/test5.json'))
 #print(cc.getDict('../resource/test8.json'))
 #print(cc.getDict('../resource/test9.json'))
 #cc.shutdown()
+cc.reloadWorker()
 
 print(cc.Test('../resource/test1.json'))
 print(cc.Test('../resource/test3.json'))
 print(cc.Test('../resource/test5.json'))
-
+cc.shutdown()
 end = time.time()
 print(end-start)

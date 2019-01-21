@@ -24,6 +24,8 @@ import nndw as nn
 
 import nnenv
 
+iotype = 'fs'
+
 def timing(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -43,9 +45,9 @@ def createDictStop():
     global stopWord    
     #dic_path = '../resource/'
     #jieba.load_userdict(dic_path + "mappingWordFinal.txt")
-    dic = nn.Dataframefactory(nnenv.getName('mappingword'),sep = '/r/n')
+    dic = nn.Dataframefactory(nnenv.getItem('mappingword'),sep = '/r/n')
     word = dic.word.tolist()   
-    stopWord = nn.Dataframefactory(nnenv.getName('stopword'),sep = '/r/n')  
+    stopWord = nn.Dataframefactory(nnenv.getItem('stopword'),sep = '/r/n')  
     stopWord = stopWord.stopword.tolist()
     stopWord.append(" ")
     jieba.re_han_default =re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
@@ -195,17 +197,17 @@ def Worker(contentqueue,labelqueue,slave_id):
     
         global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list,content_id_mapping        
         createDictStop()
-        tag = nn.Dataframefactory(nnenv.getName('tag'))
-        similar = nn.Dataframefactory(nnenv.getName('similar')) 
+        tag = nn.Dataframefactory(nnenv.getItem('tag'))
+        similar = nn.Dataframefactory(nnenv.getItem('similar')) 
         mapping =  mappingCbind(similar,tag)
 
-        clf = nn.Joblibfactory(nnenv.getName('vectorizer'))
-        tfidf_matrix = nn.Numpyarrayfactory(nnenv.getName('tfidf'))
+        clf = nn.Joblibfactory(nnenv.getItem('vectorizer'))
+        tfidf_matrix = nn.Numpyarrayfactory(nnenv.getItem('tfidf'))
 
-        labeled_corpus = nn.Dataframefactory(nnenv.getName('labeledContent'),sep = '|')
+        labeled_corpus = nn.Dataframefactory(nnenv.getItem('labeledContent'),sep = '|')
         title_list = labeled_corpus.title.tolist()
     
-        content_id_mapping = pd.read_csv(nnenv.getResourcePath() + '/' + nnenv.getName('content_id_mapping'))
+        content_id_mapping = pd.read_csv(nnenv.getResourcePath() + '/' + nnenv.getItem('content_id_mapping'))
 
         #initiate
     loading_everything()
@@ -223,58 +225,6 @@ def Worker(contentqueue,labelqueue,slave_id):
 
         elif request.rtype() == 'CALCULATE':    
          
-            start = time()
-       
-            inputdict = request.rdata() 
-    
-            df = pd.DataFrame(inputdict,index=[0])
-            df["title_token"]= df.title.apply(segContent)
-            df["all"] = df["title"] + "" + df["content"]
-            df["all_token"] = df["all"].apply(segContent)
-            seg = ' '.join(df["all_token"][0])
-    
-    #title tagging
-            df[['lb','hcp','lv1','lv2']] = df.title_token.apply(labelIt,args=(mapping, ))
-            df['lv2'] = df['lv2'].apply(filterComplication)
-    
-            title_lv1 = df['lv1'][0]
-            title_lv2 = df['lv2'][0]
-    
-    #content tagging
-            tfidf = calcTfidf(seg,clf)
-            similar_items = calcSimilarity(tfidf,tfidf_matrix,title_list,5)
-    
-            similarTitle = [i[0] for i in similar_items] 
-            similarScore = [i[1] for i in similar_items] 
-            #print("Article {} \n has the following similar articles".format(df["title"][0]))
-            #print("---------------------------------------")
-            #print(*similarTitle,sep = "\n")
-            #print("---------------------------------------")
-    
-            content_lv1_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv1'].str.split(',').tolist()
-            content_lv2_raw = labeled_corpus[labeled_corpus.title.isin(similarTitle)]['lv2'].str.split(',').tolist()
-            cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
-            cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
-            content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
-            content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
-    
-    
-            lv1_tags = list(set(content_lv1 + title_lv1))
-            lv2_tags = list(set(content_lv2 + title_lv2))
-    
-            #out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})
-            out = pd.DataFrame({"lv2":[lv2_tags]})
-    
-            final = toDictionary(out)
-            #print(inputtuple[0])
-            #print(final)
-            end = time()
-            print(end-start)
-            labelqueue.put((request.rseq(),final))
-
-        elif request.rtype() =='TEST':
-            print('[INFO]signal get for TEST')
-  
             start = time()
        
             inputdict = request.rdata() 
@@ -322,6 +272,12 @@ def Worker(contentqueue,labelqueue,slave_id):
             labelqueue.put((request.rseq(),final))
 
  
+        elif request.rtype() =='TEST':
+            print('[INFO]signal get for TEST')
+  
+            final = {'test':4321}
+            labelqueue.put((request.rseq(),final))
+
 
         elif request.rtype() == 'SHUTDOWN':
             print('[INFO]worker down with [slaveid]' + str(slave_id))

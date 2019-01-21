@@ -18,7 +18,7 @@ def checkKey():
     loaded_dict = getJsonDict()    
 
     ##necessary keys
-    keys = ['db_connect_type','server','server_port','user','password','database','auth','IOtype']
+    keys = ['db_connect_type','server','server_port','user','password','database','auth']
 
 ##check if the necessary keys in config Json
     for item in keys:
@@ -39,8 +39,6 @@ def parseValue():
     for item in loaded_dict:
         print('Key in Json is :' + str(item) + ' and Value in Json is :' + str(loaded_dict[item]))
     """ 
-    if loaded_dict['IOtype'] not in ['fs','db']:
-        raise ValueError('IOtype must be fs or db')
 
 #get connectable string for Pandas
 def getConnectable():
@@ -66,20 +64,10 @@ def getConn():
     conn=hive.Connection(host=loaded_dict['server'],port=loaded_dict['server_port'],username=loaded_dict['user'],database=loaded_dict['database'])   
     return(conn) 
 
-def getValue(key):
-    parseValue() 
-    ##if tab_name not in ['tab','similar','wechat','web','mappingword','stopword']:
-    ##    raise ValueError('Input table must be in tag|similar|wechat|web')
-    return(loaded_dict[key])
-
-def getIOtype():
-    parseValue()
-    return(loaded_dict['IOtype'])
-
 def getResourcePath():
     parseValue()
     return(os.environ.get('SMARTTOOL_HOME') + '/' + 'resource/')
  
-def getName(table_name): 
+def getItem(table_name): 
     parseValue()
     return(loaded_dict[table_name])

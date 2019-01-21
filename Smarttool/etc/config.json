@@ -1,5 +1,4 @@
 {
-  "IOtype":"fs",
   "db_connect_type":"mysql+pymysql",
   "server":"etlappnode1",
   "server_port":3306,
