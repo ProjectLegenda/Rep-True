@@ -327,14 +327,23 @@ def load():
     print("------------------------------------------------------")
     print("LOAD COMPLETE")
 
+    return('ALGORITHM LOADING COMPLETE')
+
 def rec(patient):
     
-    a = time()
-    rec = generate_usr_rec(patient, behavior_all_indexed, content_lib, pat_tfidf_matrix,
+    if patient != '':
+
+        a = time()
+        rec = generate_usr_rec(patient, behavior_all_indexed, content_lib, pat_tfidf_matrix,
                                 pat_content_title, hcp_tfidf_matrix, hcp_content_title, most_viewed)
-    b = time()
-    print('Elapse:',b-a,' seconds')
-    return(rec.T.to_dict()) 
+        b = time()
+        print('Elapse:',b-a,' seconds')
+        t = rec.T.to_dict()
+        d = {}
+        for item in t:
+            d[str(item)] =  t[item]
+        print(d)
+        return(d) 
 
 
 def mainloop():
@@ -346,7 +355,5 @@ def mainloop():
             continue
         else:
             print(rec(id_))
-
-
 
 

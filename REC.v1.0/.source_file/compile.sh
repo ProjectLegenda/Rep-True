@@ -2,7 +2,8 @@
 echo '[INFO]copyping py to pyx'
 cp nndw.py nndw.pyx
 cp nnenv.py nnenv.pyx
-cp hcpcapacore.py hcpcapacore.pyx
+cp rec.py rec.pyx
+cp rpc.py rpc.pyx
 
 
 echo '[INFO]building'

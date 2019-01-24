@@ -38,21 +38,22 @@ if [ ! -f "$REC_HOME/etc/config.json" ];then
 fi
 echo "[INFO]configuration file checked"
 
-if [ "$1" != "" ];then
-   echo "[ERROR]hcp capability algorithm shouldn't have parameters from operation system"
+if [ "$1" == "" ];then
+   echo "[ERROR] please provide hostname for rpc server"
    exit
 fi
 
+if [ "$2" == "" ];then
+   echo"[ERROR]please provide port for rpc server"
+fi 
 
 #launch the entry of algorithm
-if [ -f "$REC_HOME/lib/rec.py" ];then
+if [ -f "$REC_HOME/lib/start.py" ];then
 
-export COMM="$PYTHONBINARY $REC_HOME/lib/rec.py "
-
-else 
-export COMM="$PYTHONBINARY $REC_HOME/.source_file/rec.py"
+export COMM="$PYTHONBINARY $REC_HOME/lib/start.py $1 $2"
 
 fi
+
 echo "[INFO]REC is running"
 eval $COMM
 
