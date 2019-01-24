@@ -1,0 +1,19 @@
+{
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"admin4PEdwc",
+  "password":"whatever",
+  "database":"novodb",
+  "auth":"CUSTOM",
+  "tag":"hcp_tag",
+  "similar":"tag_similar_words",
+  "mappingword":"iqvia_mappingwordfinal",
+  "stopword":"iqvia_stopwordfinal",
+  "tmp_dir":"/tmp",
+  "web":"itangyi_web_hcp_content_view",
+  "wechat":"itangyi_wechat_hcp_content_view",
+  "hcp_articles":"iqvia_hcp_articles",
+  "pat_articles":"idiabetes_patient_history_article"
+}
+
