@@ -23,7 +23,7 @@ def init_server():
 def run():
 
     localserver.serve_forever()
-
+rec.load()
 init_server()
 
 
