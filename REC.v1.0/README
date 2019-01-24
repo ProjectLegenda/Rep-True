@@ -1,0 +1,63 @@
+Pre-requisite:
+
+    Install original python3.6.5+ from https://www.python.org
+ 
+    NOTE:Please don't install anaconda or ipython for this tools because original python depend on variable PYTHONPATH when searching for user defined site packages 
+    But others may not, but if you are familiar with all distribution of python, you can install other distribution and hack launch shell script yourself
+
+    Install Standard site-package from PyPI and make sure whenever you launch python process and packages below are accessible and importable without changing sys.path explicitly 
+
+    pandas
+    jieba
+    numpy
+    pyhive
+    sqlalchemy
+    thrift
+    Cython
+    sklearn
+    pymysql
+
+    export PATH and let shell know where to find your python3 binary
+    
+    example: 
+    export PATH=$PATH:/usr/local/bin
+ 
+
+Installing project 
+
+    tar -xf REC.tar
+    cd REC.v1.0 
+    export REC_HOME=`pwd`
+    
+Two ways to use this package:
+ 
+    1.users could launch an simple rpc server by shell scrips in $REC_HOME/bin/ by: 
+
+        $REC_HOME/bin/start.sh localhost 18000
+    
+        $1 and $2 variables for shellscript start.sh are host & port 
+
+        Two function: load() & rec(openid) could be called by rpc client. load() function is to reload the whole algorithm from datawarehouse. rec(openid) with openid as input and an python dictionary as output. Method for rpc call is in $REC_HOME/test/
+
+    2.if you don't want an rpc server version and only want to embed this algorithm to your own python program then you can:
+    
+        copy lib & etc directories to your own path. 
+    
+        make sure you are in parent directory of lib $ etc
+        then export REC_HOME=`pwd` to make sure your anchor point env is set
+     
+        cd lib
+
+        python3:
+
+            --->import rec
+            --->rec.load()
+            --->rec.rec(openid)
+   
+
+      
+
+      
+     
+   
+

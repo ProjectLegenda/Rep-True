@@ -15,9 +15,6 @@ print( s.rec('o_Ap-jqpPz_TQMNh2ITLWL9v8trY'))
 print( s.rec('o_Ap-jh45NAzkr1tQqrd9GgvlvPo'))
 
 
-
-
-
 print( s.rec('ohKW6jjd56V9pxJi5jD6zZP79thQ'))
 print( s.rec('ohKW6jmsAkjofFxhKYfml6Cehz-U'))
 
