@@ -12,6 +12,7 @@
   "stopword":"iqvia_stopwordfinal",
   "tmp_dir":"/tmp",
   "novo_hcp":"novo_hcp",
+  "article_url":"novo_article_lvf",
   "novo_hcp_market":"novo_market_level",
   "web":"itangyi_web_hcp_content_view",
   "wechat":"itangyi_wechat_hcp_content_view",

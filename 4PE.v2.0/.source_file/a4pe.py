@@ -18,6 +18,10 @@ import os
 from collections import Counter
 from functools import wraps
 from time import time
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+pd.options.mode.chained_assignment = None  # default='warn'
+
 import nndw as nn
 iotype = 'db'
 def timing(f):
@@ -114,26 +118,24 @@ def titleLabeling(df, keyTable):
     dataFrame = df.copy()
     dataFrame['Token'] = dataFrame['content_title'].apply(segContent)
     diabetes = ['糖尿病', '2型糖尿病']
-    complication = ['急性/严重并发症',
-                    '酮症酸中毒',
-                    '肝病相关',
+    
+    complication = ['心脑血管相关',
+                    '血压相关',
+                    '血脂相关',
+                    '糖尿病足相关',
+                    '眼病相关',
+                    '肾脏相关',
+                    '急性/严重并发症',
+                    '肝脏相关',
                     '呼吸系统相关',
-                    '肾病相关',
-                    '神经病变',
-                    '糖尿病足',
-                    '心脑血管相关',
-                    '高血压相关',
-                    '高血脂相关',
-                    '视网膜病变',
-                    '风湿性疾病',
-                    '性功能问题',
-                    '胃肠不适',
-                    '骨相关问题',
-                    '皮肤病变',
+                    '神经病变相关',
+                    '认知相关',
+                    '风湿免疫性相关',
+                    '消化道相关',
+                    '骨骼肌肉相关',
+                    '皮肤相关',
                     '精神/心理相关',
-                    '肿瘤相关',
-                    '其它代谢性疾病',
-                    '其它不严重的症状或不良反应']
+                    '肿瘤相关']
 
     def labelIt(tokens):
         labels = []
@@ -194,7 +196,7 @@ def dataPrepare(wechatRaw, webRaw):
                         ]
 
     # filter wechat data having doctorid
-    wechatColList = ["doctorid", "hcp_openid_u_2", "content_id", "content_title",
+    wechatColList = ["doctorid", "hcp_openid_u_2", "content_id", "content_title","module_2",
                      "start_date", "duration", "thumbs_up", "collected", "share"]
 
     
@@ -206,8 +208,8 @@ def dataPrepare(wechatRaw, webRaw):
     wechatFilterd = wechatRaw[~(wechatRaw.doctorid.isnull() | (wechatRaw.doctorid==""))][wechatColList]
 
     # filter web data having doctorid
-    webColList = ["doctorid", "content_id",
-                  "content_title", "start_date", "end_date", "thumbs_up", "collected", "share"]
+    webColList = ["doctorid", "content_id","content_title", "module_2",
+                  "start_date", "end_date", "thumbs_up", "collected", "share"]
 
     def web_behavior_process(x):
         share = 1 if "分享" in x else 0
@@ -216,6 +218,7 @@ def dataPrepare(wechatRaw, webRaw):
 
         return pd.Series([thumbs_up, collect, share])
 
+    webRaw.rename(columns={"module_category": "module_2"},inplace=True)
     webRaw["key_operation"].fillna("空", inplace=True)
     webRaw[["thumbs_up", "collected", "share"]
            ] = webRaw["key_operation"].apply(web_behavior_process)
@@ -233,15 +236,15 @@ def dataPrepare(wechatRaw, webRaw):
     # prepare data for content preference calculation
     # fill open id as null into webLog and concat required data into one df
     validWebLog.insert(1, "hcp_openid_u_2", np.nan)
-    PrefCols = ["doctorid", "hcp_openid_u_2", "content_id",
+    PrefCols = ["doctorid", "hcp_openid_u_2", "content_id","module_2",
                 "content_title", "thumbs_up", "collected", "share"]
     contentPrefData = pd.concat([validWechatLog[PrefCols], validWebLog[PrefCols]])\
         .reset_index(drop=True)
 
     wechatLog = validWechatLog[[
-        "doctorid", "hcp_openid_u_2", "content_id", "content_title", "start_date"]]
+        "doctorid", "hcp_openid_u_2","module_2","content_id", "content_title", "start_date"]]
     webLog = validWebLog[["doctorid", "hcp_openid_u_2",
-                          "content_id", "content_title", "start_date"]]
+                          "content_id","module_2","content_title", "start_date"]]
     LogData = pd.concat([wechatLog, webLog]).reset_index(drop=True)
     LogData["start_date"] = pd.to_datetime(LogData["start_date"])
 
@@ -612,6 +615,8 @@ def main():
 
     #wechat = pd.read_excel("./essential/wechat_mengbo.xlsx")
     wechat = nn.Dataframefactory('wechat',iotype = iotype)
+    wecall = wechat[wechat.module_2.isin(["WeCall 2.0","WeCall 1.0"])]
+    wecall_content = wecall.content_title.unique()
     #web = pd.read_excel("./essential/web_mengbo.xlsx")
     web = nn.Dataframefactory('web',iotype = iotype)
 
@@ -620,7 +625,7 @@ def main():
 
     #novo_market = pd.read_csv("./essential/novo_hcp_market")
     novo_market = nn.Dataframefactory('novo_hcp_market',iotype = iotype)
-
+    article_url = nn.Dataframefactory('article_url',iotype = iotype)
     print("Step 1: Done")
     print("------------------------------------------------------")
     print("Step 2: Creating dictionary")
@@ -676,6 +681,8 @@ def main():
     content_pop = content_lb_pop[["content_title", "popularity"]]
     hcp_class_mapping = get_hcp_class_mapping(
         hcp_info_pro, hcp_tech_class, doctorid_uq)
+
+    content_lb_pop = content_lb_pop[content_lb_pop.content_title.isin(wecall_content)]
     print("------------------------------------------------------")
     print("Step 7: Generating HCP Personal Recommendation List")
     o2 = output2.copy()
@@ -704,7 +711,7 @@ def main():
     ###################################################################################################
         try:
             hcp_class_content = get_hcp_class(
-                hcp_tech_class, hcp_class_mapping, doc_id, content_pop)
+                hcp_tech_class, hcp_class_mapping, doc_id, content_lb_pop)
         except IndexError:
             hcp_class_content = pd.DataFrame(
                 columns=["content_title", "popularity"])
@@ -720,6 +727,15 @@ def main():
         output5 = output5.append(test)
 
     output5 = output5.reset_index(drop=True)
+    url = article_url[["title","url"]]    
+    output5_1 = output5.merge(url,left_on=["method1"],right_on="title",how="left")
+    output5_1 = output5_1.merge(url,left_on=["method2"],right_on="title",how="left",suffixes=("_1","_2"))
+    output5_1 = output5_1.merge(url,left_on=["method3"],right_on="title",how="left",suffixes=("_1","_2"))
+    col_drop = ["title_1","title_1","title"]
+    output5_1.drop(columns=col_drop,axis=1,inplace=True)
+    col_left =[ "doctorid","rec_cnt","method1","method2","method3","url_1","url_2","url"] 
+    output5_1 = output5_1[col_left]
+    output5_1.rename(columns={"url":"url_3"},inplace=True)
     print("Step 7: Done")
     print("------------------------------------------------------")
     print("ALL COMPLETE")
@@ -728,6 +744,6 @@ def main():
     nn.write_table(output2,'hcp_content_interest',iotype = iotype)
     nn.write_table(output3,'hcp_content_interest_keyword',iotype = iotype)
     nn.write_table(output4,'hcp_reading_history',iotype = iotype)
-    nn.write_table(output5,'hcp_recommendation',iotype = iotype)
+    nn.write_table(output5_1,'hcp_recommendation',iotype = iotype)
 
     return(1)
