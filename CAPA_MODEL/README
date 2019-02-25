@@ -23,17 +23,53 @@ Pre-requisite:
     export PATH=$PATH:/usr/local/bin
  
 
-Installing project 
+Installing project:
 
-    tar -xf HCPCAPA.tar
-    cd HCPCAPA.v2.0 
-    export HCPCAPA_HOME=`pwd`
-    
-
-Launching project: 
+    tar -xf CAPA_MODEL.tar
+    cd CAPA_MODEL 
+    export CAPA_MODEL_HOME=`pwd`
   
-    $HCPCAPA_HOME/bin/hcpcapability.sh
+Launching project: 
+    
+    There are 6 algorithms in this package and will overwrite 10 tables in hive, details is in last part of this document 
+
+    Client can call algorithm the following way: 
+ 
+        $CAPA_MODEL_HOME/bin/start.sh cal_pat_wechat_openid_4pe_bi
+    
+    NOTE:cal_pat_wechat_openid_5pe_bi is the name of algorithm and it will be passed to shell-script
     
    
 Caveats: 
-    Enviorment variable HCPCAPA_HOME must be set 
+    Enviorment variable CAPA_MODEL_HOME must be set
+
+
+
+Description for algorithm:
+
+    For each name of algorithm, the tables it would overwrite and purpose is expressed in following way:
+
+    algorithm_name-->tablename would be overwritten-->purpose of algorithm; 
+
+    if '|' exists after a name ,then it says that this name could map to mutiple output tables and purpose. In practice, each time you call the shell script with a name of algorithm, the table(s) depend on it will be overwriten, so you don't have to call multiple times  
+
+
+Details:
+
+    cal_pat_wechat_openid_4pe_bi-->cal_pat_wechat_openid_4pe_bi_heatmap-->provide heatmap input for patient openid from wechat to bi&4pe system 
+                               |-->cal_pat_wechat_openid_4pe_bi_chordmap-->provide chordmap input for patient openid from wechat to bi&4pe system 
+
+
+    cal_hcp_wechat_web_docid_4pe-->cal_hcp_wechat_web_docid_4pe_heatmap-->provide heatmap input for hcp doctorid from wechat&web to 4pe system
+                               |-->cal_hcp_wechat_web_docid_4pe_chordmap-->provide chordmap input for hcp doctorid from wechat&web to 4pe system
+
+    
+    cal_hcp_wechat_openid_bi-->cal_hcp_wechat_openid_bi_heatmap-->provide heatmap input for hcp openid from wechat to bi system 
+                           |-->cal_hcp_wechat_openid_bi_chordmap-->provide chordmap input for hcp openid from wechat to bi system
+
+    cal_hcp_web_docid_bi-->cal_hcp_web_docid_heatmap-->provide heatmap input for hcp doctorid from web to bi system
+                       |-->cal_hcp_web_docid_chordmap-->provide chordmap input for hcp doctorid  from web to bi system 
+    
+    cal_pat_search_openid_stats-->cal_pat_search_openid_stats-->provide search keywords and original search terms for patient with openid
+ 
+    cal_pat_callcenter_patid_stats-->cal_pat_callcenter_patid_stats-->provide call center mapped with categories at patient id level

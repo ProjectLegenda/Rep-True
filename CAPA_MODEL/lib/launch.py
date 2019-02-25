@@ -31,3 +31,6 @@ elif sys.argv[1] == 'cal_pat_callcenter_patid_stats':
     import cal_pat_callcenter_patid_stats as al 
     if al.main() == 1:
         print('[INFO]Algorithm done')
+
+else:
+    print('[Error]Invalid algorithm')
