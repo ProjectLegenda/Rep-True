@@ -18,22 +18,29 @@ Pe-requisite:
     pymysql
 
     export PATH and let shell know where to find your python3 binary
-    
     example: 
     export PATH=$PATH:/usr/local/bin
- 
 
 Installing project 
 
     tar -xf a4pe.tar
     cd 4PE.v2.0 
     export A4PE_HOME=`pwd`
-    
 
-Launching project: 
+Launching project:
   
     $A4PE_HOME/bin/a4pe.sh
-    
-   
-Caveats: 
+
+Caveats:
+
     Enviorment variable A4PE_HOME must be set 
+
+Note:
+
+    The a4pe program will overwrite the following tables in Hive:
+
+    iqvia_hcp_channel_preference
+    iqvia_hcp_content_interest
+    iqvia_hcp_content_interest_keyword
+    iqvia_hcp_reading_history
+    iqvia_4pe_hcp_recommendation
