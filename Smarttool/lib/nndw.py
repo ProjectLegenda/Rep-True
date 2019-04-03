@@ -7,12 +7,12 @@ import pandas as pd
 from sklearn.externals import joblib
 import numpy as np
 
-def Dataframefactory(table_name,sep = ',',iotype = 'fs'):
+def Dataframefactory(table_name,sep = ',',iotype = 'fs',con=nnenv.getConnectable()):
     ##directly return Pandas dataframe
     if iotype == 'fs':
-        return(pd.read_csv(nnenv.getResourcePath() + table_name,sep=sep,engine='python'))
+        return(pd.read_csv(nnenv.getResourcePath() + nnenv.getItem(table_name),sep=sep,engine='python'))
     if iotype == 'db':
-        return(pd.read_sql_table(table_name=nnenv.getItem(table_name),con=nnenv.getConnectable()))  
+        return(pd.read_sql_table(table_name=nnenv.getItem(table_name),con=con)) 
 
 def Numpyarrayfactory(np_name):
     return(np.load(nnenv.getResourcePath() + np_name))

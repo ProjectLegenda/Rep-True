@@ -24,7 +24,7 @@ import nndw as nn
 
 import nnenv
 
-iotype = 'fs'
+iotype = 'db'
 
 def timing(f):
     @wraps(f)
@@ -45,10 +45,10 @@ def createDictStop():
     global stopWord    
     #dic_path = '../resource/'
     #jieba.load_userdict(dic_path + "mappingWordFinal.txt")
-    dic = nn.Dataframefactory(nnenv.getItem('mappingword'),sep = '/r/n')
+    dic = nn.Dataframefactory('mappingword',sep = '/r/n',iotype='fs')
     word = dic.word.tolist()   
-    stopWord = nn.Dataframefactory(nnenv.getItem('stopword'),sep = '/r/n')  
-    stopWord = stopWord.stopword.tolist()
+    stopWord = nn.Dataframefactory('stopword',sep = '/r/n',iotype='fs')  
+    stopWord = stopWord.word.tolist()
     stopWord.append(" ")
     jieba.re_han_default =re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
     frequnecy = 100000000000000000000000
@@ -123,26 +123,23 @@ def labelIt(tokens,keyTable):
 
 def filterComplication(lv2Label):
     diabetes = ['糖尿病','2型糖尿病']
-    complication = ['急性/严重并发症',
-                    '酮症酸中毒',
-                    '肝病相关',
+    complication = ['心脑血管相关',
+                    '血压相关',
+                    '血脂相关',
+                    '糖尿病足相关',
+                    '眼病相关',
+                    '肾脏相关',
+                    '急性/严重并发症',
+                    '肝脏相关',
                     '呼吸系统相关',
-                    '肾病相关',
-                    '神经病变',
-                    '糖尿病足',
-                    '心脑血管相关',
-                    '高血压相关',
-                    '高血脂相关',
-                    '视网膜病变',
-                    '风湿性疾病',
-                    '性功能问题',
-                    '胃肠不适',
-                    '骨相关问题',
-                    '皮肤病变',
+                    '神经病变相关',
+                    '认知相关',
+                    '风湿免疫性相关',
+                    '消化道相关',
+                    '骨骼肌肉相关',
+                    '皮肤相关',
                     '精神/心理相关',
-                    '肿瘤相关',
-                    '其它代谢性疾病',
-                    '其它不严重的症状或不良反应']
+                    '肿瘤相关']
     for word in diabetes:
         if word in lv2Label:
             lv2Label.remove(word)
@@ -197,17 +194,17 @@ def Worker(contentqueue,labelqueue,slave_id):
     
         global tag,similar,mapping,clf,tfidf_matrix,labeled_corpus,title_list,content_id_mapping        
         createDictStop()
-        tag = nn.Dataframefactory(nnenv.getItem('tag'))
-        similar = nn.Dataframefactory(nnenv.getItem('similar')) 
+        tag = nn.Dataframefactory('tag',iotype='fs')
+        similar = nn.Dataframefactory('similar',iotype='fs') 
         mapping =  mappingCbind(similar,tag)
 
         clf = nn.Joblibfactory(nnenv.getItem('vectorizer'))
         tfidf_matrix = nn.Numpyarrayfactory(nnenv.getItem('tfidf'))
 
-        labeled_corpus = nn.Dataframefactory(nnenv.getItem('labeledContent'),sep = '|')
+        labeled_corpus = nn.Dataframefactory('labeledContent',sep = '|',iotype='db',con=nnenv.getItem('mysql_url'))
         title_list = labeled_corpus.title.tolist()
     
-        content_id_mapping = pd.read_csv(nnenv.getResourcePath() + '/' + nnenv.getItem('content_id_mapping'))
+        content_id_mapping = nn.Dataframefactory('content_id_mapping',iotype='fs')
 
         #initiate
     loading_everything()
@@ -250,15 +247,15 @@ def Worker(contentqueue,labelqueue,slave_id):
              
             content_id_list = df_merge['content_id'].tolist()
             
-            content_lv1_raw = labeled_corpus[labeled_corpus.content_id.isin(content_id_list)]['lv1'].str.split(',').tolist()
-            content_lv2_raw = labeled_corpus[labeled_corpus.content_id.isin(content_id_list)]['lv2'].str.split(',').tolist()
-            cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
+           # content_lv1_raw = labeled_corpus[labeled_corpus.content_id.isin(content_id_list)]['lv1'].str.split(',').tolist()
+            content_lv2_raw = labeled_corpus[labeled_corpus.content_id.isin(content_id_list)]['labels'].str.split(',').tolist()
+           # cleaned_content_lv1 = [x for x in content_lv1_raw if str(x) != 'nan']
             cleaned_content_lv2 = [x for x in content_lv2_raw if str(x) != 'nan']
-            content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
+           # content_lv1 = [item for sublist in cleaned_content_lv1 for item in sublist]
             content_lv2 = [item for sublist in cleaned_content_lv2 for item in sublist]
     
     
-            lv1_tags = list(set(content_lv1 + title_lv1))
+            #lv1_tags = list(set(content_lv1 + title_lv1))
             lv2_tags = list(set(content_lv2 + title_lv2))
     
             #out = pd.DataFrame({"lv1":[lv1_tags],"lv2":[lv2_tags]})

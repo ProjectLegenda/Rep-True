@@ -43,10 +43,10 @@ def createDictStop():
     """
     print("Loading Dictionary and Stopwords")
     global stopWord
-    dic = nn.Dataframefactory(nnenv.getItem('mappingword'),sep = '/r/n')
+    dic = nn.Dataframefactory('mappingword',sep = '/r/n',iotype=iotype)
     word = dic.word.tolist()
-    stopWord = nn.Dataframefactory(nnenv.getItem('stopword'),sep = '/r/n') 
-    stopWord = stopWord.stopword.tolist()
+    stopWord = nn.Dataframefactory('stopword',sep = '/r/n',iotype=iotype) 
+    stopWord = stopWord.word.tolist()
     stopWord.append(" ")
     jieba.re_han_default = re.compile(r'([\u0020\u4e00-\u9fa5a-zA-Z0-9+#&._%/β/α/-]+)', re.UNICODE)
     frequnecy = 100000000000000000000000
@@ -71,7 +71,8 @@ def combineTitleAndContent(dataset):
     :param dataset: xlsx or sth
     :return: corpus: list of tokens for each article
     """
-    corpus = dataset[dataset["status"]==1]
+    #corpus = dataset[dataset["status"]==1]
+    corpus = dataset.copy()
   
     corpus = corpus.reset_index(drop = True)
 
@@ -96,7 +97,7 @@ def createTfidfMatrix(corpus):
 
 def main():
     # pre-define path & variables
-    corpus_raw = nn.Dataframefactory(nnenv.getItem('content_articles'),sep = '|')
+    corpus_raw = nn.Dataframefactory('labeledContent',sep = '|',iotype='db',con=nnenv.getItem('mysql_url'))
     vector = "vectorizer.joblib"
     matrix = "tfidf.npy"
     outpath = nnenv.getResourcePath() 
