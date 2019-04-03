@@ -1,0 +1,21 @@
+{
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"admin4PEdwc",
+  "password":"whatever",
+  "database":"novodb",
+  "auth":"CUSTOM",
+  "tag":"tag",
+  "similar":"tag_similar_words",
+  "mappingword":"iqvia_mappingwordfinal",
+  "stopword":"iqvia_stopwordfinal",
+  "content_articles":"newvalidarticles.csv",
+  "labeledContent":"new_content_lables.csv",
+  "vectorizer":"vectorizer.joblib",
+  "tfidf":"tfidf.npy",
+  "content_id_mapping":"content_id_mapping.csv",
+  "mysql_url":"mysql+pymysql://content_db_user:qaz!#wsx$edc@etlappnode1:3306/content_db_test"
+
+}
+
