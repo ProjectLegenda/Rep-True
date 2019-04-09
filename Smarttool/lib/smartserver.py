@@ -82,6 +82,7 @@ def addItemtoQueue(item):
     global seq
     seq = seq + 1    
     request = Request(r_seq = seq,r_data = item,r_type = 'CALCULATE')
+    print(item)
     contentq.put(request,block=True)
     print('[INFO]Request ' + str(seq) + ' sent to contentqueue')
     seqlock.release()
@@ -115,6 +116,7 @@ def getItemfromDict(sseq):
             labeldict.pop(sseq)
             seqlock.release()
             print('[INFO]Sequence' + str(sseq) + 'Has been poped out from labeldict')
+            print(t)
             return(t)
         else:
             time.sleep(0.1)
@@ -169,7 +171,7 @@ class ServerThread(threading.Thread):
          self.localServer.serve_forever()
 
 
-#rpc server
+#rpceserver
 def init(host,port):
     server = ServerThread(host,port)
     server.start()

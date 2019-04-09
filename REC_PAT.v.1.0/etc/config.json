@@ -1,0 +1,24 @@
+{
+  "db_connect_type":"hive",
+  "server":"clusternode3",
+  "server_port":10000,
+  "user":"admin4PEdwc",
+  "password":"whatever",
+  "database":"novodb",
+  "auth":"CUSTOM",
+  "hcp_tag":"hcp_tag",
+  "pat_tag":"pat_tag",
+  "similar":"tag_similar_words",
+  "mappingword":"iqvia_mappingwordfinal",
+  "stopword":"iqvia_stopwordfinal",
+  "tmp_dir":"/tmp",
+  "web":"itangyi_web_hcp_content_view",
+  "behavior":"itangyi_wechat_hcp_content_view",
+  "hcp_articles":"iqvia_hcp_articles",
+  "pat_articles":"idiabetes_patient_history_article",
+  "pat_info":"idiabetes_patient_info",
+  "survey_answer":"idiabetes_patient_survey_answer",
+  "diabetes_type":"idiabetes_patient_diabetes_type",
+  "survey_question":"idiabetes_patient_survey_question"
+}
+

@@ -201,7 +201,7 @@ def Worker(contentqueue,labelqueue,slave_id):
         clf = nn.Joblibfactory(nnenv.getItem('vectorizer'))
         tfidf_matrix = nn.Numpyarrayfactory(nnenv.getItem('tfidf'))
 
-        labeled_corpus = nn.Dataframefactory('labeledContent',sep = '|',iotype='db',con=nnenv.getItem('mysql_url'))
+        labeled_corpus = nn.Dataframefactory('labeledContent',sep = '|',iotype='fs',con=nnenv.getItem('mysql_url'))
         title_list = labeled_corpus.title.tolist()
     
         content_id_mapping = nn.Dataframefactory('content_id_mapping',iotype='fs')
