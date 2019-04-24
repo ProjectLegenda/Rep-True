@@ -34,7 +34,7 @@ def chordStatsBySeg(data, doctorid):
 
     return mergedPoints
 
-# by pat openid, no continuous months	
+# by pat openid, no continuous months    
 def statsBySegment(data, doctorid):
     segAllData = data.copy()
     statsList = []
@@ -51,8 +51,8 @@ def statsBySegment(data, doctorid):
     statsBySeg.insert(loc=0, column="doctorid", value=doctorid)
     
     return statsBySeg
-	
-	
+    
+    
 # use labelled behaviour data to do stats on different level
 def statsByLevel(data, lvl):
     resList = []
@@ -63,12 +63,12 @@ def statsByLevel(data, lvl):
     
     df = pd.DataFrame({"tag_count":resList})
     stats = df["tag_count"].value_counts().to_frame(name="tag_count")
-	stats.reset_index(inplace=True)
+    stats.reset_index(inplace=True)
     stats.rename(columns={"index":"tag_name"}, inplace=True)
     
     return stats
 
-	
+    
 # extract the montid, e.g. 201711 from behaviour data
 def getMonthId(date):
     timeStamp = pd.to_datetime(date)
@@ -79,7 +79,7 @@ def getMonthId(date):
     
     return month_id
 
-	
+    
 def dataPrepare(webRaw):
     
     # filter wechat data in doctorList
@@ -121,7 +121,7 @@ def tokenize(content):
     token = [word for word in wordList if word not in stopWord]
     return token
 
-	
+    
 def mappingCbind(tagSimilarWords, tag):
     """
     create mapping file
@@ -152,7 +152,7 @@ def mappingCbind(tagSimilarWords, tag):
 
     return mapping
 
-	
+    
 def titleLabeling(df, keyTable):
     """Labeling Title
 
@@ -238,43 +238,41 @@ def main():
     
     # 整合微信和网站的数据到同一个df
     cbindBehavData = dataPrepare(web)
-	if cbindBehavData.shape[0] == 0:
-		print("ERROR!!!")
-		print("NO VALID DATA IS PREPARED! PLEASE CHECK THE RAW DATA.")
-		print()
-	else:
-		hcpList = list(set(cbindBehavData["doctorid"]))
-		print("Finished Data preparation")
-		
-		contentTitle = cbindBehavData['content_title'].dropna().drop_duplicates().to_frame()
-		contentLabeled = titleLabeling(contentTitle,mapping)
-		allBehavDataLabelled= cbindBehavData.merge(contentLabeled,left_on='content_title',right_on='content_title')
-		allBehavDataLabelled["month_id"] = allBehavDataLabelled["start_date"].apply(getMonthId)
-		validBehavDataLabelled = allBehavDataLabelled[allBehavDataLabelled.lv2_tag.str.len() != 0]
+    if cbindBehavData.shape[0] == 0:
+        print("ERROR!!!")
+        print("NO VALID DATA IS PREPARED! PLEASE CHECK THE RAW DATA.")
+        print()
+    else:
+       hcpList = list(set(cbindBehavData["doctorid"]))
+       print("Finished Data preparation")
+       
+       contentTitle = cbindBehavData['content_title'].dropna().drop_duplicates().to_frame()
+       contentLabeled = titleLabeling(contentTitle,mapping)
+       allBehavDataLabelled= cbindBehavData.merge(contentLabeled,left_on='content_title',right_on='content_title')
+       allBehavDataLabelled["month_id"] = allBehavDataLabelled["start_date"].apply(getMonthId)
+       validBehavDataLabelled = allBehavDataLabelled[allBehavDataLabelled.lv2_tag.str.len() != 0]
 
-		# calculate the heatmap data and chord diagram data
-		heatMapPart = []
-		chordMapPart = [] 
-		print("Begin calculating")
-		
-		for doctorid in hcpList:
-			segBehavData = validBehavDataLabelled[validBehavDataLabelled["doctorid"]==doctorid]
-			if segBehavData.shape[0] != 0:
-				segHeatData = statsBySegment(segBehavData, doctorid)
-				heatMapPart.append(segHeatData)
-				segChordData = chordStatsBySeg(segBehavData, doctorid)
-				if segChordData.shape[0] != 0:
-					chordMapPart.append(segChordData)
-		   
-		heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
-		chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
-		print("Finished calculating")
-		
-		nn.write_table(heatMapOutput,'hcp_heatmap_doctorid_bi',iotype = iotype)
-		# hcp_heatmap_openid structure: four columns - doctorid, month_id, tag_name, tag_count
-		nn.write_table(chordMapOutput,'hcp_chordmap_doctorid_bi', iotype = iotype)
-		# hcp_chordmap_openid structure: four columns - doctorid, point_one, point_two, count
-		
-		return (1)   
-
-
+       # calculate the heatmap data and chord diagram data
+       heatMapPart = []
+       chordMapPart = [] 
+       print("Begin calculating")
+       
+       for doctorid in hcpList:
+           segBehavData = validBehavDataLabelled[validBehavDataLabelled["doctorid"]==doctorid]
+           if segBehavData.shape[0] != 0: 
+               segHeatData = statsBySegment(segBehavData, doctorid)
+               heatMapPart.append(segHeatData)
+               segChordData = chordStatsBySeg(segBehavData, doctorid)
+               if segChordData.shape[0] != 0:
+                   chordMapPart.append(segChordData)
+          
+       heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
+       chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
+       print("Finished calculating")
+       
+       nn.write_table(heatMapOutput,'hcp_heatmap_doctorid_bi',iotype = iotype)
+       # hcp_heatmap_openid structure: four columns - doctorid, month_id, tag_name, tag_count
+       nn.write_table(chordMapOutput,'hcp_chordmap_doctorid_bi', iotype = iotype)
+       # hcp_chordmap_openid structure: four columns - doctorid, point_one, point_two, count
+       
+       return (1) 
