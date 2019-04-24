@@ -63,7 +63,7 @@ def statsByLevel(data, lvl):
     
     df = pd.DataFrame({"tag_count":resList})
     stats = df["tag_count"].value_counts().to_frame(name="tag_count")
-    stats.reset_index(inplace=True)
+	stats.reset_index(inplace=True)
     stats.rename(columns={"index":"tag_name"}, inplace=True)
     
     return stats
@@ -79,29 +79,31 @@ def getMonthId(date):
     
     return month_id
 
+	
 def dataPrepare(wechatRaw, webRaw):
-   
+    
     # filter wechat data have doctorid and into necessary columns
     docWechatRaw = wechatRaw[wechatRaw["platform"]=="2"]
-    validDocWechatRaw = docWechatRaw[~((docWechatRaw["doctorid"].isnull()) | (docWechatRaw["doctorid"]==''))]
+	validDocWechatRaw = docWechatRaw[~((docWechatRaw["doctorid"].isnull()) | (docWechatRaw["doctorid"]==''))]
     wechatColList = ["doctorid", "hcp_openid_u_2", "content_title", "start_date"]
     wechatFilterd = validDocWechatRaw[wechatColList]
-   
+    
     # filter web data have doctorid and into necessary columns
-    validDocWebRaw = webRaw[~((webRaw["doctorid"].isnull()) | (webRaw["doctorid"]==''))]
+	validDocWebRaw = webRaw[~((webRaw["doctorid"].isnull()) | (webRaw["doctorid"]==''))]
     webColList = ["doctorid", "content_title", "start_date"]
     webFilterd = validDocWebRaw[webColList]
-   
+    
     # Remove the invalid data: content title is 0
     validWechatLog = wechatFilterd[~((wechatFilterd.content_title=="") | (wechatFilterd.content_title.isnull()))].reset_index(drop=True)
     validWebLog = webFilterd[~((webFilterd.content_title=="") | (webFilterd.content_title.isnull()))].reset_index(drop=True)
-   
+    
     # fill open id as null into webLog and concat required data into one df
     validWebLog.insert(1, "hcp_openid_u_2", np.nan)
     cbindData = pd.concat([validWechatLog[["doctorid", "hcp_openid_u_2", "content_title", "start_date"]],\
                                  validWebLog[["doctorid", "hcp_openid_u_2", "content_title", "start_date"]]]).reset_index(drop=True)
- 
+
     return cbindData
+
 
 def createDictStop():
     """
@@ -239,7 +241,7 @@ def titleLabeling(df, keyTable):
 
 
 def main():
-    tag = nn.Dataframefactory("hcp_tag",iotype = iotype)
+    tag = nn.Dataframefactory("tag",iotype = iotype)
     simi = nn.Dataframefactory("similar",iotype = iotype)
     
     mapping =  mappingCbind(simi,tag)
@@ -251,39 +253,43 @@ def main():
 
     # 整合微信和网站的数据到同一个df
     cbindBehavData = dataPrepare(wechat, web)
-    doctorList = list(set(cbindBehavData["doctorid"]))
-    print("Finished Data preparation")
-    
-    contentTitle = cbindBehavData['content_title'].dropna().drop_duplicates().to_frame()
-    contentLabeled = titleLabeling(contentTitle,mapping)
-    allBehavDataLabelled= cbindBehavData.merge(contentLabeled,left_on='content_title',right_on='content_title')
-    allBehavDataLabelled["month_id"] = allBehavDataLabelled["start_date"].apply(getMonthId)
-    validBehavDataLabelled = allBehavDataLabelled[allBehavDataLabelled.lv2_tag.str.len() != 0]
+	if cbindBehavData.shape[0] == 0:
+		print("ERROR!!!")
+		print("NO VALID DATA IS PREPARED! PLEASE CHECK THE RAW DATA.")
+		print()
+	else:
+		doctorList = list(set(cbindBehavData["doctorid"]))
+		print("Finished Data preparation")
+		
+		contentTitle = cbindBehavData['content_title'].dropna().drop_duplicates().to_frame()
+		contentLabeled = titleLabeling(contentTitle,mapping)
+		allBehavDataLabelled= cbindBehavData.merge(contentLabeled,left_on='content_title',right_on='content_title')
+		allBehavDataLabelled["month_id"] = allBehavDataLabelled["start_date"].apply(getMonthId)
+		validBehavDataLabelled = allBehavDataLabelled[allBehavDataLabelled.lv2_tag.str.len() != 0]
 
-    # calculate the heatmap data and chord diagram data
-    heatMapPart = []
-    chordMapPart = [] 
-    print("Begin calculating")
-    
-    for docid in doctorList:
-        segBehavData = validBehavDataLabelled[validBehavDataLabelled["doctorid"]==docid]
-        if segBehavData.shape[0] != 0:
-            segHeatData = statsBySegment(segBehavData, docid)
-            heatMapPart.append(segHeatData)
-            segChordData = chordStatsBySeg(segBehavData, docid)
-            if segChordData.shape[0] != 0:
-                chordMapPart.append(segChordData)
-       
-    heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
-    chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
-    print("Finished calculating")
-    
-    nn.write_table(heatMapOutput,'hcp_heatmap',iotype = iotype)    
-	# hcp_heatmap structure: four columns - doctorid, month_id, tag_name, tag_count
-    nn.write_table(chordMapOutput,'hcp_chordmap', iotype = iotype)
-    # hcp_chordmap structure: four columns - doctorid, point_one, point_two, count
-	
-    return (1)   
-
+		# calculate the heatmap data and chord diagram data
+		heatMapPart = []
+		chordMapPart = [] 
+		print("Begin calculating")
+		
+		for docid in doctorList:
+			segBehavData = validBehavDataLabelled[validBehavDataLabelled["doctorid"]==docid]
+			if segBehavData.shape[0] != 0:
+				segHeatData = statsBySegment(segBehavData, docid)
+				heatMapPart.append(segHeatData)
+				segChordData = chordStatsBySeg(segBehavData, docid)
+				if segChordData.shape[0] != 0:
+					chordMapPart.append(segChordData)
+		   
+		heatMapOutput = pd.concat(heatMapPart, ignore_index=True)
+		chordMapOutput = pd.concat(chordMapPart, ignore_index=True)
+		print("Finished calculating")
+		
+		nn.write_table(heatMapOutput,'hcp_heatmap',iotype = iotype)    
+		# hcp_heatmap structure: four columns - doctorid, month_id, tag_name, tag_count
+		nn.write_table(chordMapOutput,'hcp_chordmap', iotype = iotype)
+		# hcp_chordmap structure: four columns - doctorid, point_one, point_two, count
+		
+		return (1)   
 
 
