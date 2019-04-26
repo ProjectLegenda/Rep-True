@@ -335,7 +335,7 @@ def check_behav_valid_usr(usr_id,behavior_all_indexed,content_lib,num=3):
     return flag, items_to_ignore,valid_behavior
 
 
-def generate_usr_rec(usr_id, behavior_all_indexed, content_lib, content_pop_rank, pat_attr_dict, content_attr_dict):
+def generate_usr_rec(usr_id, behavior_all_indexed, content_lib, content_pop_rank, pat_attr_dict, content_attr_dict,all_content):
     pref_num = 8
     strat_num = 8
     prog_num = 4
@@ -396,6 +396,8 @@ def generate_usr_rec(usr_id, behavior_all_indexed, content_lib, content_pop_rank
     open_id = [usr_id] * (pref_num+strat_num+prog_num)
     RecFrame = pd.DataFrame(list(zip(open_id, rec_final, rec_method)), columns=[
                           "open_id", "rec_title", "rec_method"])
+    RecFrame = RecFrame.merge(all_content[["content_id","title"]],left_on="rec_title",right_on="title")
+    RecFrame.drop("title",axis=1,inplace=True) 
 
     return RecFrame
 
@@ -438,7 +440,7 @@ def load():
     global behavior_all_indexed
     behavior_all_indexed = interaction_process(behavior_raw) #对行为数据 先进行处理 
 
-    global content_lib
+    global content_lib,all_content
     content_lib,all_content = content_lib_processing(content_pat_raw) #对文章库进行处理 
     
     global content_pop_rank
@@ -513,7 +515,7 @@ def rec(patient):
     if patient != '':
 
         a = time()
-        rec = generate_usr_rec(patient, behavior_all_indexed, content_lib, content_pop_rank, pat_attr_dict, content_attr_dict)
+        rec = generate_usr_rec(patient, behavior_all_indexed, content_lib, content_pop_rank, pat_attr_dict, content_attr_dict,all_content)
         b = time()
         print('Elapse:',b-a,' seconds')
         t = rec.T.to_dict()
