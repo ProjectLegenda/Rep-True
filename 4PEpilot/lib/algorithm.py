@@ -1,2 +1,0 @@
-import pilot
-pilot.main()
