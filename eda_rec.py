@@ -110,7 +110,6 @@ def rec_list():
 
 
     ll = [{'content_id':list_final[i],'rec_articles':title[i]} for i in range(0,len(title))]
-    print(ll)
 
     data = {"visiting_id": visiting_id,'article_list':ll}
 
