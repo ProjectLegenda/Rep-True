@@ -20,7 +20,8 @@ app = Flask(__name__)
 
 '''init'''
 
-engine=sqlalchemy.create_engine('mysql+pymysql://mysql_usr:password@localhost:3306/eda_test')
+##engine=sqlalchemy.create_engine('mysql+pymysql://mysql_usr:password@localhost:3306/eda_test')
+engine=sqlalchemy.create_engine('mysql+pymysql://root:quid0s@114.215.44.212:10086/sagacityidea_novoedaesb')
 
 '''
 eda = pd.read_sql_table(table_name='eda_tag', con=engine)
@@ -34,7 +35,7 @@ eda_brand = pd.read_sql('eda_brand', con=engine)
 def rec_list():
 
     eda = pd.read_sql_table(table_name='eda_tag', con=engine)
-    content_tag = pd.read_sql_table('content_tag_new', con=engine)
+    content_tag = pd.read_sql_table('content_tag', con=engine)
     content_brand = pd.read_sql_table('content_brand', con=engine)
     content_strength_viewcnts = pd.read_sql('content_strength_viewcnts', con=engine)  # sqlp
     eda_brand = pd.read_sql('eda_brand', con=engine)
@@ -43,23 +44,27 @@ def rec_list():
     ########行为数据与eda数据merge（根据page_path和eda_id）
     sql = "select * from see_behaviour_log where visiting_id ='{}'".format(visiting_id)
     vis_beh = pd.read_sql_query(sql, engine)
+    if len(vis_beh) == 0:
+        return(json.dumps({"visiting_id": visiting_id,'article_list':[]},ensure_ascii=False))
+
+
     vis_beh = vis_beh[['id', 'user_id', 'page_path', 'page_title', 'visiting_id', 'data_id']]
     beh_merge1 = pd.merge(vis_beh, eda, left_on=['page_path', 'data_id'], right_on=['url', 'eda_id'], how='left')
-    if beh_merge1['tag'].isnull().all() == True:
+    if beh_merge1['tags'].isnull().all() == True:
         list_final = []
     else:
-        beh_merge1 = beh_merge1.dropna(subset=['tag'])
+        beh_merge1 = beh_merge1.dropna(subset=['tags'])
 
         ########标签处理
-        beh_merge1['tag'] = beh_merge1['tag'].str.split("|")
+        beh_merge1['tags'] = beh_merge1['tags'].str.split("|")
         beh_merge1 = beh_merge1.drop(['page_path', 'data_id'], axis=1)
-        beh_tag = beh_merge1.tag.apply(pd.Series).merge(beh_merge1, left_index=True, right_index=True).drop(["tag"],
+        beh_tag = beh_merge1.tags.apply(pd.Series).merge(beh_merge1, left_index=True, right_index=True).drop(["tags"],
                                                                                                             axis=1).melt(
-            id_vars=['id', 'user_id', 'page_title', 'visiting_id', 'eda_id', 'url', 'sheet'], value_name="tag").drop(
-            "variable", axis=1).dropna(subset=["tag"])
+            id_vars=['id', 'user_id', 'page_title', 'visiting_id', 'eda_id', 'url', 'sheet'], value_name="tags").drop(
+            "variable", axis=1).dropna(subset=["tags"])
 
         #######标签计算 排序
-        tag_num = beh_tag.groupby(['visiting_id', 'tag']).size().to_frame('per')
+        tag_num = beh_tag.groupby(['visiting_id', 'tags']).size().to_frame('per')
         percentage = (tag_num / tag_num.groupby('visiting_id').sum()).reset_index()
         percentage_rank = percentage.groupby(['visiting_id']).apply(
             lambda x: x.sort_values(['per'], ascending=False)).reset_index(drop=True)
@@ -74,8 +79,8 @@ def rec_list():
 
         # df
         #######将df与添加eda tag后的表进行merge
-        df_join = pd.merge(df, beh_tag, left_on=['visiting_id', 'tag'], right_on=['visiting_id', 'tag'], how='left')
-        df_join = df_join.drop_duplicates(subset=['visiting_id', 'tag', 'url'], keep='first', inplace=False)
+        df_join = pd.merge(df, beh_tag, left_on=['visiting_id', 'tags'], right_on=['visiting_id', 'tags'], how='left')
+        df_join = df_join.drop_duplicates(subset=['visiting_id', 'tags', 'url'], keep='first', inplace=False)
         df_mer = pd.merge(df_join, eda_brand, left_on=['eda_id'], right_on=['eda_id'], how='left')  # 添加brand id
         #######文章库三张表进行merge
         content_merge = pd.merge(content_tag, content_brand, on='content_id', how='left')
@@ -83,12 +88,12 @@ def rec_list():
         con_merge = pd.merge(content_merge, content_strength_viewcnts, on='content_id', how='left')
         con_merge = con_merge.drop_duplicates().reset_index(drop=True)
         #######文章库与处理好的行为数据进行merge
-        df_final = pd.merge(df_mer, con_merge, left_on=['tag', 'brand_id'], right_on=['lv2_lb', 'brand_id'], how='left')
+        df_final = pd.merge(df_mer, con_merge, left_on=['tags', 'brand_id'], right_on=['lv2_lb', 'brand_id'], how='left')
         #######con_merge筛选999的文章 热度排序
         con_merge_999 = con_merge[con_merge['brand_id'] == 999].sort_values(['strength'], ascending=False)
         # # con_merge_999.sort_values(['strength'],ascending=False)
         ######计算每一条匹配到的文章个数
-        df_drop = df_final[['tag', 'brand_id', 'content_id']].groupby(['tag', 'brand_id'])[
+        df_drop = df_final[['tags', 'brand_id', 'content_id']].groupby(['tags', 'brand_id'])[
             'content_id'].count().to_frame('cnt').reset_index()
         ######补缺 finally
         if df_final['content_id'].isnull().all() == True:
