@@ -31,7 +31,7 @@ content_strength_viewcnts = pd.read_sql('content_strength_viewcnts', con=engine)
 eda_brand = pd.read_sql('eda_brand', con=engine)
 '''
 
-@app.route('/eda_rec',methods=['GET'])
+@app.route('/eda_rec',methods=['GET','POST'])
 def rec_list():
 
     eda = pd.read_sql_table(table_name='eda_tag', con=engine)
