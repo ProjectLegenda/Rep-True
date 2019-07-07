@@ -34,13 +34,8 @@ eda_brand = pd.read_sql('eda_brand', con=engine)
 @app.route('/eda_rec',methods=['GET','POST'])
 def rec_list():
 
-    eda = pd.read_sql_table(table_name='eda_tag', con=engine)
-    content_tag = pd.read_sql_table('content_tag', con=engine)
-    content_brand = pd.read_sql_table('content_brand', con=engine)
-    content_strength_viewcnts = pd.read_sql('content_strength_viewcnts', con=engine)  # sqlp
-    eda_brand = pd.read_sql('eda_brand', con=engine)
     visiting_id = request.args['visitingid']
-    
+
     ########行为数据与eda数据merge（根据page_path和eda_id）
     sql = "select * from see_behaviour_log where visiting_id ='{}'".format(visiting_id)
     vis_beh = pd.read_sql_query(sql, engine)
@@ -48,7 +43,15 @@ def rec_list():
         return(json.dumps({"visiting_id": visiting_id,'article_list':[]},ensure_ascii=False))
 
 
+
+    eda = pd.read_sql_table(table_name='eda_tag', con=engine)
+    content_tag = pd.read_sql_table('content_tag', con=engine)
+    content_brand = pd.read_sql_table('content_brand', con=engine)
+    content_strength_viewcnts = pd.read_sql('content_strength_viewcnts', con=engine)  # sqlp
+    eda_brand = pd.read_sql('eda_brand', con=engine)
+
     vis_beh = vis_beh[['id', 'user_id', 'page_path', 'page_title', 'visiting_id', 'data_id']]
+
     beh_merge1 = pd.merge(vis_beh, eda, left_on=['page_path', 'data_id'], right_on=['url', 'eda_id'], how='left')
     if beh_merge1['tags'].isnull().all() == True:
         list_final = []
