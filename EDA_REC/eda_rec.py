@@ -93,7 +93,8 @@ def rec_list():
         #######文章库与处理好的行为数据进行merge
         df_final = pd.merge(df_mer, con_merge, left_on=['tags', 'brand_id'], right_on=['lv2_lb', 'brand_id'], how='left')
         #######con_merge筛选999的文章 热度排序
-        con_merge_999 = con_merge[con_merge['brand_id'] == 999].sort_values(['strength'], ascending=False)
+        con_merge_999 = con_merge[con_merge['brand_id'] == '999'].sort_values(['strength'], ascending=False)
+        print(con_merge_999)
         # # con_merge_999.sort_values(['strength'],ascending=False)
         ######计算每一条匹配到的文章个数
         df_drop = df_final[['tags', 'brand_id', 'content_id']].groupby(['tags', 'brand_id'])[
@@ -115,6 +116,7 @@ def rec_list():
 
     title = content_strength_viewcnts[content_strength_viewcnts.content_id.isin(list_final)].sort_values(by="strength",
                                                                                                          ascending=False).content_title.tolist()
+
 
 
     ll = [{'content_id':list_final[i],'rec_articles':title[i]} for i in range(0,len(title))]
