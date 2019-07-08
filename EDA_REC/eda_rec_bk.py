@@ -13,6 +13,7 @@ import numpy as np
 import json
 import sqlalchemy
 import random
+import config
 
 from flask import request
 
@@ -22,8 +23,7 @@ app = Flask(__name__)
 '''init'''
 
 ##engine=sqlalchemy.create_engine('mysql+pymysql://mysql_usr:password@localhost:3306/eda_test')
-engine=sqlalchemy.create_engine('mysql+pymysql://root:quid0s@114.215.44.212:10086/sagacityidea_novoedaesb')
-
+engine = config.engine
 '''
 eda = pd.read_sql_table(table_name='eda_tag', con=engine)
 content_tag = pd.read_sql_table('content_tag_new', con=engine)

@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import json
 import sqlalchemy
+import config 
 
 from flask import request
 
@@ -20,16 +21,8 @@ app = Flask(__name__)
 
 '''init'''
 
-##engine=sqlalchemy.create_engine('mysql+pymysql://mysql_usr:password@localhost:3306/eda_test')
-engine=sqlalchemy.create_engine('mysql+pymysql://root:quid0s@114.215.44.212:10086/sagacityidea_novoedaesb')
+engine = config.engine
 
-'''
-eda = pd.read_sql_table(table_name='eda_tag', con=engine)
-content_tag = pd.read_sql_table('content_tag_new', con=engine)
-content_brand = pd.read_sql_table('content_brand', con=engine)
-content_strength_viewcnts = pd.read_sql('content_strength_viewcnts', con=engine)  # sqlp
-eda_brand = pd.read_sql('eda_brand', con=engine)
-'''
 
 @app.route('/eda_rec',methods=['GET','POST'])
 def rec_list():
@@ -41,7 +34,6 @@ def rec_list():
     vis_beh = pd.read_sql_query(sql, engine)
     if len(vis_beh) == 0:
         return(json.dumps({"visiting_id": visiting_id,'article_list':[]},ensure_ascii=False))
-
 
 
     eda = pd.read_sql_table(table_name='eda_tag', con=engine)
