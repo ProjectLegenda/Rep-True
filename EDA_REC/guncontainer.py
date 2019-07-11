@@ -4,7 +4,7 @@ from logging.handlers import WatchedFileHandler
 
 bind = '0.0.0.0:8052'      #绑定ip和端口号
 backlog = 512                #监听队列
-chdir = '/home/eda_rec_iqvia/eda_rec'  #gunicorn要切换到的目的工作目录
+chdir = '/app'  #gunicorn要切换到的目的工作目录
 timeout = 30      #超时
 worker_class = 'gevent' #使用gevent模式，还可以使用sync 模式，默认的是sync模式
 
@@ -28,5 +28,5 @@ D          request time in microseconds
 L          request time in decimal seconds
 p          process ID
 """
-accesslog = "/home/eda_rec_iqvia/eda_rec/log/gunicorn_access.log"      #访问日志文件
-errorlog = "/home/eda_rec_iqvia/eda_rec/log/gunicorn_error.log"        #错误日志文件
+accesslog = "/app/gunicorn_access.log"      #访问日志文件
+errorlog = "/app/gunicorn_error.log"        #错误日志文件

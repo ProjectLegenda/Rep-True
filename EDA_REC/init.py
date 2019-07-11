@@ -1,2 +1,2 @@
-from eda_rec_bk import app
+from eda_rec import app
 
