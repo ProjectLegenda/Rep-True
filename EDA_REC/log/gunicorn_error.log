@@ -1,0 +1,13 @@
+[2019-07-12 08:54:31 +0000] [7] [INFO] Starting gunicorn 19.9.0
+[2019-07-12 08:54:31 +0000] [7] [INFO] Listening at: http://0.0.0.0:8052 (7)
+[2019-07-12 08:54:31 +0000] [7] [INFO] Using worker: gevent
+[2019-07-12 08:54:31 +0000] [10] [INFO] Booting worker with pid: 10
+[2019-07-12 08:54:52 +0000] [7] [INFO] Handling signal: winch
+[2019-07-12 08:54:52 +0000] [7] [INFO] Handling signal: winch
+[2019-07-12 08:55:50 +0000] [7] [INFO] Handling signal: int
+[2019-07-12 08:55:50 +0000] [10] [INFO] Worker exiting (pid: 10)
+[2019-07-12 08:55:50 +0000] [7] [INFO] Shutting down: Master
+[2019-07-12 08:56:45 +0000] [9] [INFO] Starting gunicorn 19.9.0
+[2019-07-12 08:56:45 +0000] [9] [INFO] Listening at: http://0.0.0.0:8052 (9)
+[2019-07-12 08:56:45 +0000] [9] [INFO] Using worker: gevent
+[2019-07-12 08:56:45 +0000] [12] [INFO] Booting worker with pid: 12
