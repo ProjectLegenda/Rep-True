@@ -19,6 +19,8 @@ from flask import request
 app = Flask(__name__)
 
 
+ugly_exclustion = ['S914Jkh3SaezuVh8xqXCYQ','pleekdUITQSKvW35jAHm_w','8OYxUJG-QAiCyKDbJLQ-aQ','jcrPeDLFRc2rRyl8eeZITA']
+
 '''init'''
 
 engine = config.engine
@@ -91,15 +93,24 @@ def rec_list():
             'content_id'].count().to_frame('cnt').reset_index()
         ######补缺 finally
         if df_final['content_id'].isnull().all() == True:
+            if df_final['eda_id'].isin(ugly_exclustion).all() ==True:
+                list_final = []
+            else:
             #     df_list = df_final[['brand_id']==999][0]
-            list_final = con_merge_999.head(3)['content_id'].astype(int).tolist()
+                list_final = con_merge_999.head(3)['content_id'].astype(int).tolist()
         else:
+
             df_list = df_final.dropna(subset=["content_id"])
+
             if len(df_list) < 3:
                 list_999 = con_merge_999[~con_merge_999.content_id.isin(df_list['content_id'])].head(3 - len(df_list))[
                     'content_id'].astype(int).tolist()
                 list_1 = df_list['content_id'].astype(int).tolist()
-                list_final = list_999 + list_1
+                if df_list['eda_id'].isin(ugly_exclustion).all() == True:
+                    list_final = list_1
+                else:
+                    list_final = list_999 + list_1
+
             else:
                 list_sort = df_list.sort_values(['strength'], ascending=False).head(3)
                 list_final = list_sort['content_id'].astype(int).tolist()
