@@ -102,6 +102,10 @@ def rec_list():
 
             df_list = df_final.dropna(subset=["content_id"])
 
+            ##FIXED by Zhenxing
+
+            df_list = df_list.drop_duplicates(subset=['content_id'],keep='first',inplace=False)
+
             if len(df_list) < 3:
                 list_999 = con_merge_999[~con_merge_999.content_id.isin(df_list['content_id'])].head(3 - len(df_list))[
                     'content_id'].astype(int).tolist()
