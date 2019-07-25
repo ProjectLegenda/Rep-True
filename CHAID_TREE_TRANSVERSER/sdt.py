@@ -91,7 +91,8 @@ class Tree_transverser():
 
 if __name__ == '__main__':  
 
-    from chaid_v2 import tree
+    from chaid import tree
+
     t = tree.to_tree()
 
     trans = Tree_transverser(t,symbol = 'case', when = 'when',then = 'then',end = 'end') 
