@@ -1,28 +1,29 @@
-from model_transferer.utils.nodes import Transformed_CHAID_node
+#core of tree transverser
 
 class Tree_transverser():
     
-     def __init__(self,indent_char = ' '*4,symbol = 'case ', when = 'when', then = 'then', in_clause = 'in', end = 'end',node_factory = Transformed_CHAID_node):
+     def __init__(self):
 
          self.indent = 1 
          self.final_str = ''
+         self.indent_char = ' '*4 
 
-         self.node_factory = node_factory
-         self.indent_char = indent_char
-
-         self.symbol = symbol
-         self.when = when
-         self.then = then
-         self.end = end
-         self.in_clause = in_clause
-
-         #self.transversal()
-         #print(self.__str__())    
-      
-     def bind_tree(self,tree):
+     def bindTree(self,tree):
          self.tree = tree
 
 
+     def bindSyntax(self,syntax):
+
+         self.startwith = syntax.STARTWITH
+         self.switch = syntax.SWITCH
+         self.in_clause = syntax.IN_CLAUSE
+         self.then = syntax.THEN
+         self.end = syntax.END
+         
+              
+     def bindNodeFactory(self,node_factory):
+         self.node_factory = node_factory
+          
      def eval_node(self,nid):
       
          self.indent = self.indent + 1
@@ -36,10 +37,10 @@ class Tree_transverser():
 
                  if i == 0: 
                      self.final_str = self.final_str + str(self.indent * self.indent_char)\
-                         +  self.symbol + '\n'
+                         +  self.startwith + '\n'
 
                  self.final_str = self.final_str + str(self.indent * self.indent_char)\
-                     + self.when + ' '\
+                     + self.switch + ' '\
                      + current_node.getNodeSplitname()\
                      + ' {} '.format(self.in_clause)\
                      + current_node.getSplits()[i]\

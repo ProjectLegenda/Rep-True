@@ -1,8 +1,3 @@
-from treelib.tree import Tree 
- 
-from treelib.node import Node 
-
-
 class Absnode():
 
 
@@ -29,7 +24,7 @@ class Absnode():
 
 
 # concret class for node
-class Transformed_CHAID_node(Absnode): 
+class CHAID_to_vbanode(Absnode): 
  
     ## flater visit for node inforamtion  
  
@@ -48,3 +43,25 @@ class Transformed_CHAID_node(Absnode):
         members = self.node.tag.members 
         max_key = max(members,key = members.get) 
         return( 'y= ' + str(max_key)) 
+
+
+class CHAID_to_sqlnode(Absnode):
+     
+    def __init__(self,node):
+        Absnode.__init__(self,node)
+
+    def getNodeSplitname(self):
+        return(self.node.tag.split.split_name )
+
+    def getSplits(self):
+        return([i.__str__().replace('[','(').replace(']',')') for i in self.node.tag.split.splits])
+
+    def getCategory(self):
+        members = self.node.tag.members
+        max_key = max(members,key = members.get)
+        return(str(max_key))
+
+
+
+
+
