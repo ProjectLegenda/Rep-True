@@ -11,15 +11,6 @@ class Tree_transverser():
      def bindTree(self,tree):
          self.tree = tree
 
-
-     def bindSyntax(self,syntax):
-
-         self.startwith = syntax.STARTWITH
-         self.switch = syntax.SWITCH
-         self.in_clause = syntax.IN_CLAUSE
-         self.then = syntax.THEN
-         self.end = syntax.END
-         
               
      def bindNodeFactory(self,node_factory):
          self.node_factory = node_factory
@@ -37,18 +28,18 @@ class Tree_transverser():
 
                  if i == 0: 
                      self.final_str = self.final_str + str(self.indent * self.indent_char)\
-                         +  self.startwith + '\n'
+                         +  current_node.startwith + '\n'
 
                  self.final_str = self.final_str + str(self.indent * self.indent_char)\
-                     + self.switch + ' '\
+                     + current_node.switch + ' '\
                      + current_node.getNodeSplitname()\
-                     + ' {} '.format(self.in_clause)\
+                     + ' {} '.format(current_node.in_clause)\
                      + current_node.getSplits()[i]\
-                     + ' ' + self.then + ' \n'
+                     + ' ' + current_node.then + ' \n'
 
                  self.eval_node(child_nid)
              
-             self.final_str = self.final_str + str(self.indent * self.indent_char)  + self.end + ' \n'
+             self.final_str = self.final_str + str(self.indent * self.indent_char)  + current_node.end + ' \n'
 
          else:
        

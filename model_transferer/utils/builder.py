@@ -9,14 +9,9 @@ class transferer_builder():
 
     def __init__(self):
         self.tree_transverser = Tree_transverser()
-    
-    def buildSyntax(self,syntax):
-        if syntax == 'vba':
-            self.tree_transverser.bindSyntax(vbaSyntax)
-        if syntax == 'sql':
-            self.tree_transverser.bindSyntax(sqlSyntax)
-    
+
     def buildNodeFactory(self,node_typ):
+
         if node_typ == 'CHAIDtovba':
             self.tree_transverser.bindNodeFactory(CHAID_to_vbanode)
  

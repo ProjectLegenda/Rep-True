@@ -11,6 +11,7 @@ class vbaSyntax():
         
     
 class sqlSyntax():
+
     STARTWITH='case'
     SWITCH = 'when'
     THEN ='then'

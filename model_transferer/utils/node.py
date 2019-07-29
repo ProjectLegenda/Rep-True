@@ -1,10 +1,23 @@
+from model_transferer.utils.syntax import vbaSyntax
+from model_transferer.utils.syntax import sqlSyntax
+
 class Absnode():
 
 
 # default action for node which needed to be transfered, all following interface should be re-defined for each implmentation of differernt model
-    def __init__(self,node):
+    def __init__(self,node,syntax):
+
         self.node = node
-        
+
+        self.syntax = syntax
+
+        self.startwith = syntax.STARTWITH
+        self.switch = syntax.SWITCH
+        self.then = syntax.THEN
+        self.in_clause = syntax.IN_CLAUSE
+        self.end = syntax.END
+            
+   
     def getFpointer(self):
         return(self.node.fpointer) 
    
@@ -30,9 +43,9 @@ class CHAID_to_vbanode(Absnode):
  
     def __init__(self,node): 
  
-        Absnode.__init__(self,node)
+        Absnode.__init__(self,node,vbaSyntax)
         # by using a intermediate transformation of a node to get attriute easily 
- 
+
     def getNodeSplitname(self): 
         return(self.node.tag.split.split_name + '.value')     
      
@@ -48,8 +61,8 @@ class CHAID_to_vbanode(Absnode):
 class CHAID_to_sqlnode(Absnode):
      
     def __init__(self,node):
-        Absnode.__init__(self,node)
-
+        Absnode.__init__(self,node,sqlSyntax)
+      
     def getNodeSplitname(self):
         return(self.node.tag.split.split_name )
 
