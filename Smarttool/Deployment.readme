@@ -1,0 +1,26 @@
+
+
+Method to re-launch smarttool 
+
+    HCP smart-tool
+        1. login server etlappnode1 with user smarttool
+        2. cd /home/smarttool/Smarttool_hcp
+        3. export SMARTTOOL_HOME=`pwd`
+        4. cd bin (service could only be launched in path $SMARTTOOL_HOME/bin
+        5. nohup smart-start.sh 10.0.2.7 18000 &
+    
+
+    PAT smart-tool
+        1. login server etlappnode1 with user smarttool
+        2. cd /home/smarttool/Smarttool_pat
+        3. export SMARTTOOL_HOME=`pwd`
+        4. cd bin (service could only be launched in path $SMARTTOOL_HOME/bin
+        5. nohup smart-start.sh 10.0.2.7 18001 &
+
+Daemonize the process is not configured yet. the service is simply configured to be launched  with nohup utility 
+if any issues, contact IQVIA AA china team.
+
+
+    
+
+    
