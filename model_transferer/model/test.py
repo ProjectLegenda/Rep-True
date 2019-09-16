@@ -3,7 +3,7 @@ from model_transferer.utils.builder import transferer_builder
 
 builder = transferer_builder()
 
-builder.buildNodeFactory('CHAIDtosql')
+builder.buildNodeFactory('CHAIDtovba')
 
 trans = builder.getTransverser()
 
