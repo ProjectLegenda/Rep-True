@@ -1,0 +1,136 @@
+#!/usr/local/bin/python3
+
+dict2 = \
+    {1:
+          {1:
+                {1:{2:{0:8},0:3},
+                 2:{0:7},
+                 0:2
+                },
+           2:
+                {0:6},
+           0:1
+          },
+     2:
+          {1:
+                {0:4},
+           0:5
+          },
+     3:   {1:
+             {0:9},
+           0:0
+          },
+     0:0
+    }
+
+
+def isunique(input_str):
+
+    if type(input_str) == str:  
+        t = [i for i in input_str]
+    elif type(input_str) == list:
+        t = input_str
+
+    x = []
+
+    for i in t:
+        if x.count(i) == 0:
+            x.append(i)
+    
+    if x == t:
+        return(True) 
+    else:
+        return(False)
+    
+def reverse_str(input_str):
+    t = [i for i in input_str]
+    t.reverse()
+    x = ''
+    for item in t:
+        x = x + item 
+    return(x)
+
+def f_support(g_r_n,g_r_s,d = dict2):
+    
+    r = '0' + reverse_str(g_r_s)      
+    
+    t = reverse_str(g_r_n)
+    
+    i = 0
+
+    try:
+        for item in t:
+            
+            x = r.index(item)
+
+            if len(d) == 1: 
+                return(d[0],i,0)
+
+            d = d[x]
+
+            i = i + 1
+    except:
+
+        return(d[0],i,-1)   
+
+    if len(d) == 1:
+        return(d[0],i,1)
+  
+    else:
+        return(d[0],i-1,1)
+
+def f_split(input_str,step = 2):
+    
+    l = len(input_str)
+    t = []
+    for i in range(l-1,-step,-step):
+        
+        x = i-step
+        if x < 0:
+            x = 0
+        t.append(input_str[x:i+1])
+    
+    return(t)
+
+def perspective(grn,grs = 'MDCLXVI'):
+
+    if not isunique(grs):
+        return(-1)
+
+    lst = f_split(grs)
+    
+    l2 = len(grn)
+    
+    grn_start_point = l2    
+
+    exp = 0 
+    
+    n = 0
+
+    for i in lst:
+
+        a,b,c = f_support(grn[:grn_start_point],i)
+        
+        print(grn[:grn_start_point],i) 
+        print(a,b,c)
+        grn_start_point = grn_start_point - b 
+        n = a*(10**exp) + n
+        exp = exp + 1
+        print(grn_start_point)
+        
+    if c == -1:
+        return(-1)
+
+
+    return(n) 
+        
+      
+    
+
+
+
+     
+
+
+
+

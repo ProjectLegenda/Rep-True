@@ -24,7 +24,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 pd.options.mode.chained_assignment = None  # default='warn'
 
-iotype = 'db'
+iotype = 'fs'
 
 
 def parallelize_dataframe(df, func, n_cores=4):

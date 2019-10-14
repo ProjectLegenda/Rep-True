@@ -9,11 +9,13 @@ import platform
 
 ##Read Json file in dictionary ./
 def getJsonDict():
+
     etc_dir = os.environ.get('WECALL_HOME')
 
     if platform.system() == 'Windows':
         formater = '\\'
-    elif platform.system() == 'Linux':
+    #elif platform.system() == 'Linux':
+    else:
         formater = '/'
 
     config_file_path = etc_dir + "{0}etc{0}config.json".format(formater)
@@ -77,7 +79,8 @@ def getConn():
 def getResourcePath():
     if platform.system() == 'Windows':
         formater = '\\'
-    elif platform.system() == 'Linux':
+    #elif platform.system() == 'Linux':
+    else:
         formater = '/'
     parseValue()
     return(os.environ.get('WECALL_HOME') + formater + 'resource' + formater)

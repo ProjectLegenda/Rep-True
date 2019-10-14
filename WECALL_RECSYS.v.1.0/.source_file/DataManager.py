@@ -17,7 +17,7 @@ from jiebaSegment import Seg
 from utils import smooth_user_preference, TagSys
 import warnings
 warnings.filterwarnings('ignore')
-iotype = 'db'
+iotype = 'fs'
 
 
 class DataManager:

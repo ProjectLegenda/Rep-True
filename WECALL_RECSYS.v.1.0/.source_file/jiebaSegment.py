@@ -16,7 +16,7 @@ import jieba
 import re
 import nndw as nn
 
-iotype = 'db'
+iotype = 'fs'
 
 
 class Seg:
