@@ -23,6 +23,11 @@ print(perspective('123','IIV'))
 
 print('PERSPECTIVE TEST')
 
-#print(perspective('XVII'))
+print(perspective('XVII'))
 print(perspective('MCMLXXXII'))
 print(perspective(grn='M',grs='MDCLXVI'))
+print(perspective(grn='EeDEBBBaA',grs='fFeEdDcCbBaA'))
+print(perspective(grn='ABCDEFGHIJKLMNOPQRST',grs='AbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStT'))
+print(perspective(grn='IIII'))
+print(perspective(grn='AMAZING',grs='LAQMPVXYZIRSGN'))
+print(perspective('VI'))

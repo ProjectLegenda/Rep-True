@@ -24,6 +24,20 @@ dict2 = \
     }
 
 
+dict3 = \
+    {'0':'',
+     '1':'1',
+     '2':'11',
+     '3':'111',
+     '4':'12',
+     '5':'2',
+     '6':'21',
+     '7':'211',
+     '8':'2111',
+     '9':'13'
+     }
+ 
+
 def isunique(input_str):
 
     if type(input_str) == str:  
@@ -58,6 +72,8 @@ def f_support(g_r_n,g_r_s,d = dict2):
     
     i = 0
 
+    x = 0
+
     try:
         for item in t:
             
@@ -71,13 +87,28 @@ def f_support(g_r_n,g_r_s,d = dict2):
             i = i + 1
     except:
 
-        return(d[0],i,-1)   
+            return(d[0],i,-1)
 
-    if len(d) == 1:
-        return(d[0],i,1)
-  
+    if x == 3:
+        return(d[0],i-1, -1)
     else:
-        return(d[0],i-1,1)
+        return(d[0],i,1)
+
+def f_support2(arb,g_r_s,d=dict3):
+    
+    o = ''
+    r = '0' + reverse_str(g_r_s)
+
+    try:
+        ser = dict3[str(arb)]
+    
+        for i in ser:
+            o = o + r[int(i)]
+    except:
+        return(-1)
+
+    return(o)
+    
 
 def f_split(input_str,step = 2):
     
@@ -108,6 +139,9 @@ def perspective(grn,grs = 'MDCLXVI'):
     n = 0
 
     for i in lst:
+       
+        if len(grn[:grn_start_point]) == 0 :
+            return(n)
 
         a,b,c = f_support(grn[:grn_start_point],i)
         
@@ -125,6 +159,12 @@ def perspective(grn,grs = 'MDCLXVI'):
     return(n) 
         
       
+def retrospective(arb,grs = 'MDCLXVI'):
+    if not isunique(grs):
+        return(-1)
+
+    lst = f_split(grs)
+
     
 
 
