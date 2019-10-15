@@ -72,35 +72,48 @@ def f_support(g_r_n,g_r_s,d = dict2):
     
     i = 0
 
-    switch = 0 
+    switch = 0
+    for item in t:
 
-    try:
-
-        for item in t:
-            
+       
+        try:
             x = r.index(item)
 
-            if len(d) == 1: 
-                return(d[0],i,0)
-
-            d = d[x]
-
             if x == 3:
-                switch = 1
+                switch = switch + 1
 
-            i = i + 1
-
-    except:
-
-            if switch == 1:
+        except ValueError:
+            
+            if switch in (1,2):
                 return(d[0],i-1,-1)
 
             return(d[0],i,-1)
+            
+
+        if x in d.keys():
+
+            d = d[x]
+            i = i + 1
+
+        else: 
+           if switch == 2:
+               return(d[0],i-1,-1)   
+           return(d[0],i,-1)
+
+        if len(d) == 1 :
+            return(d[0],i,1)
+
 
     if x == 3:
-        return(d[0],i-1, -1)
-    else:
-        return(d[0],i,1)
+        return(d[0],i-1,0)
+
+    return(d[0],i,0)
+
+    
+
+
+
+
 
 def f_support2(arb,g_r_s,d=dict3):
     
@@ -153,8 +166,8 @@ def perspective(grn,grs = 'MDCLXVI'):
 
         a,b,c = f_support(grn[:grn_start_point],i)
         
-        print(grn[:grn_start_point],i) 
-        print(a,b,c)
+#        print(grn[:grn_start_point],i) 
+#        print(a,b,c)
         grn_start_point = grn_start_point - b 
         n = a*(10**exp) + n
         exp = exp + 1
@@ -194,4 +207,5 @@ def retrospective(arb,grs = 'MDCLXVI'):
 
 
 
-
+if __name__ == '__main__':
+    print(1)
