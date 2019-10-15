@@ -72,9 +72,10 @@ def f_support(g_r_n,g_r_s,d = dict2):
     
     i = 0
 
-    x = 0
+    switch = 0 
 
     try:
+
         for item in t:
             
             x = r.index(item)
@@ -84,8 +85,15 @@ def f_support(g_r_n,g_r_s,d = dict2):
 
             d = d[x]
 
+            if x == 3:
+                switch = 1
+
             i = i + 1
+
     except:
+
+            if switch == 1:
+                return(d[0],i-1,-1)
 
             return(d[0],i,-1)
 
@@ -150,7 +158,7 @@ def perspective(grn,grs = 'MDCLXVI'):
         grn_start_point = grn_start_point - b 
         n = a*(10**exp) + n
         exp = exp + 1
-        print(grn_start_point)
+  #      print(grn_start_point)
         
     if c == -1:
         return(-1)
@@ -160,13 +168,26 @@ def perspective(grn,grs = 'MDCLXVI'):
         
       
 def retrospective(arb,grs = 'MDCLXVI'):
+
     if not isunique(grs):
         return(-1)
 
+    x = str(arb)
+ 
     lst = f_split(grs)
 
-    
+    r = reverse_str(x) 
+   
+    o = str()
+    for key,i in enumerate(r):
 
+        m = f_support2(i,lst[key])
+        
+        if m == -1:
+            return(-1)
+        o = m + o 
+    
+    return(o)
 
 
      
