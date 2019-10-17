@@ -420,6 +420,28 @@ def convert(input_str,d = dict_syntax):
         return(-2)
 
 
+def main():
+
+    s = input('How can I help you? ')
+
+    o = convert(s)
+   
+    if o == -1:
+        print('Hey, ask me something that\'s not impossible to do!')
+   
+    elif o == -2:
+        print('I dont\'t get what you want, sorry mate!')
+    
+    elif type(o) == tuple:
+        print('Sure! It is {0} using {1}'.format(o[0],o[1]))
+
+    
+    else:
+        print('Sure! It is {}'.format(o))
+        
+
+
+
 
 if __name__ == '__main__':
-    pass
+    main()
