@@ -1,4 +1,6 @@
 #!/usr/local/bin/python3
+import types
+
 
 dict2 = \
     {1:
@@ -38,6 +40,16 @@ dict3 = \
      }
  
 
+dict4 = \
+    {'1':('1',),
+     '11':('2',),
+     '111':('3',),
+     '12':(4,9),
+     '112':('7',),
+     '1112':('8',),
+    }
+
+
 def isunique(input_str):
 
     if type(input_str) == str:  
@@ -66,7 +78,7 @@ def reverse_str(input_str):
 
 def f_support(g_r_n,g_r_s,d = dict2):
     
-    r = '0' + reverse_str(g_r_s)      
+    r = '^' + reverse_str(g_r_s)      
     
     t = reverse_str(g_r_n)
     
@@ -109,16 +121,11 @@ def f_support(g_r_n,g_r_s,d = dict2):
 
     return(d[0],i,0)
 
-    
-
-
-
-
 
 def f_support2(arb,g_r_s,d=dict3):
     
     o = ''
-    r = '0' + reverse_str(g_r_s)
+    r = '^' + reverse_str(g_r_s)
 
     try:
         ser = dict3[str(arb)]
@@ -145,9 +152,6 @@ def f_split(input_str,step = 2):
     return(t)
 
 def perspective(grn,grs = 'MDCLXVI'):
-
-    if not isunique(grs):
-        return(-1)
 
     lst = f_split(grs)
     
@@ -182,11 +186,10 @@ def perspective(grn,grs = 'MDCLXVI'):
       
 def retrospective(arb,grs = 'MDCLXVI'):
 
-    if not isunique(grs):
-        return(-1)
-
     x = str(arb)
- 
+    
+    if x.startswith('0') :
+        return(-1)
     lst = f_split(grs)
 
     r = reverse_str(x) 
@@ -194,6 +197,8 @@ def retrospective(arb,grs = 'MDCLXVI'):
     o = str()
     for key,i in enumerate(r):
 
+        if len(lst) < len(r):
+            return(-1)
         m = f_support2(i,lst[key])
         
         if m == -1:
@@ -203,9 +208,218 @@ def retrospective(arb,grs = 'MDCLXVI'):
     return(o)
 
 
-     
+def convert_index(input_str):
+    
+    r = input_str 
+    f = str()
+    
+    m = {}
+    s = 0
+    for index in r:
+
+        if index not in m.keys():
+            s = s + 1
+            m[index] = str(s)
+            f = f + str(s)
+
+        else:
+            f = f + m[index]
+    
+    return(f)
+ 
+
+
+def findAllSymbles(roman, prefix='', cnt=0, prev=''):
+
+    if not roman:
+
+        if prefix:
+
+            if len(prefix) % 2 == 0 and cnt >= 2 or len(prefix) % 2 != 0 and cnt >= 4:
+
+                tmp = list(prefix)
+
+                tmp.insert(1, '_')
+
+                prefix = ''.join(tmp)
+
+            return [prefix]
+
+        else:
+
+            return []
+
+    
+
+    if roman[-1] in prefix and roman[-1] != prefix[0]:
+
+        return []
+
+    res = []
+
+    if prefix and roman[-1] == prefix[0]:
+
+        if prev[-1] == roman[-1]:        
+
+            res += findAllSymbles(roman[:-1], prefix, cnt + 1, prev)
+
+        else:
+
+            res += findAllSymbles(roman[:-1], prefix, 1, roman[-1])
+
+        if len(roman) >= 2 and roman[-2] in prefix and roman[-2] != prefix[0]:
+
+            if prev[-1] == roman[-1]:
+
+                res += findAllSymbles(roman[:-2], prefix, cnt + 1, prev)
+
+            else:
+
+                res += findAllSymbles(roman[:-2], prefix, 1, roman[-2:])
+
+    else:
+
+        if cnt >= 2 and len(prefix) % 2 == 0:
+
+            tmp = list(prefix)
+
+            tmp.insert(1, '_')
+
+            newPrefix = ''.join(tmp)
+
+        else:
+
+            newPrefix = prefix
+
+        res += findAllSymbles(roman[:-1], roman[-1] + newPrefix, 1, roman[-1])
+
+        if len(roman) >= 2 and roman[-2] in newPrefix and newPrefix.find(roman[-2]) <= 2: 
+
+            if (len(newPrefix) - newPrefix.find(roman[-2]) - 1) % 2 == 0:
+
+                res += findAllSymbles(roman[:-2], roman[-1] + newPrefix, 1, roman[-2:])
+
+            else:
+
+                # print('{} {} {}'.format(newPrefix, roman[-2], newPrefix.find(roman[-2])))
+
+                tmp = list(newPrefix)
+
+                tmp.insert(1, '_')
+
+                newPrefix = ''.join(tmp)
+
+                res += findAllSymbles(roman[:-2], roman[-1] + newPrefix, 1, roman[-2:])
+
+        elif len(roman) >= 2 and roman[-2] not in newPrefix and roman[-2] != roman[-1]:
+
+            if len(newPrefix) % 2 == 0:
+
+                res += findAllSymbles(roman[:-2], roman[-1] + roman[-2] + newPrefix, 1, roman[-2:])
+
+            else:
+
+                res += findAllSymbles(roman[:-2], roman[-1] + roman[-2] + '_' + newPrefix, 1, roman[-2:])      
+
+    return res
+
+
+def introspective(input_str):
+
+    l = findAllSymbles(input_str)
+    if len(l) == 0:
+        return(-1)
+
+    l2 = [ (i,perspective(input_str,i)) for i in l]
+
+    n = -1    
+    m = ''
+    for item in l2:
+
+        if item[1] != -1:
+            if n == -1:
+                n = item[1]
+                m = item[0]
+            elif n > item[1]:
+                n = item[1]
+                m = item[0] 
+    
+    if n == -1:
+        return(n)
+
+    return(n,m)
+
+
+
+dict_syntax = \
+    {'Please':
+         {
+             'convert':
+                 {'arb':{
+                         'using':{'roman':retrospective}
+                         }, 
+                  'string':{
+                           'using':{'roman':perspective},
+                           'minimally':introspective
+                          }
+                                       
+                 }
+       
+         }
+    }
+
+def convert(input_str,d = dict_syntax):
+    
+    s = input_str.rstrip().split(' ')
+
+    decoder = '' 
+
+    try:
+
+        for item in s:
+
+            if ('arb' in d.keys()) or ('string' in d.keys()):
+                if item.isdigit():
+                    d = d['arb']
+                    target = item 
+                    continue 
+
+                if item.isalpha():
+                    d = d['string']
+                    target = item
+                    continue
+                else:
+                    return(-1)
+           
+            if 'roman' in d.keys():
+                if item.isalpha():
+                    if isunique(item):
+                        f = d['roman'] 
+                        decoder = item
+                        return(f(target,item))   
+                    else:
+                        return(-1)
+             
+                if not item.isalpha():
+                    return(-1)
+            
+            d = d[item]
+
+        if isinstance(d,types.FunctionType):  
+            f = d
+            if len(decoder) == 0:
+                return(f(target))
+            else:
+                return(f(target,decoder))
+        else:
+              
+            f = d['using']['roman']
+            return(f(target))
+        
+    except:
+        return(-2)
 
 
 
 if __name__ == '__main__':
-    print(1)
+    pass
