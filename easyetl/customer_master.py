@@ -1,12 +1,11 @@
-from loader import load_intomysql,f_get_filelist
+from loader import load_intomysql
 
-table_name='customer_master'
+TABLE_NAME='customer_master'
 
-file_name_prefix = 'CN_MH_MSD_Customer_Master_'
+FILE_NAME_PREFIX = 'CN_MH_MSD_Customer_Master_'
 
 month_list = [20200709,20200521,20200430,20200102,20191128,20190926,20190901,20190429]
 
 if __name__ == '__main__':
 
-    file_list = f_get_filelist(file_name_prefix,month_list) 
-    load_intomysql(table_name,file_list)
+    load_intomysql(TABLE_NAME,FILE_NAME_PREFIX,month_list)

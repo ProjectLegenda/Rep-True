@@ -40,7 +40,7 @@ def format_data_(file_name):
 
 # poor implementation shake it!!!
 
-def track_format_struc_(data_formated_rows):
+def format_structure_(data_formated_rows):
         
     for row,header_length in data_formated_rows:
 
@@ -78,30 +78,6 @@ def track_format_struc_(data_formated_rows):
             yield(row)
 
 
-def share_format_struc_(data_formated_rows):
-        
-    for row,header_length in data_formated_rows:
-
-        row_length = len(row)
-
-        if row_length == header_length + 1:
-            
-            cut_pos = row_length -5
-            Last = row[-3:]
-            Fix = row[-5] + ',' + row[-4]
-            new_row = row[0:cut_pos ]
-            new_row.append(Fix)
-            new_row+=Last
-            
-            yield(new_row)
-
-        elif row_length != header_length:
-
-            print(row)
-
-        else:
-            yield(row)
-
 
 def final_writer_(structure_formated_rows,output_name):
 
@@ -114,12 +90,8 @@ def final_writer_(structure_formated_rows,output_name):
 
 def tracker_final_chain(file_name,output_name):
     
-    final_writer_((row for row in tracker_format_struc_(format_data_(file_name))),output_name)
+    final_writer_((row for row in format_structure_(format_data_(file_name))),output_name)
 
-
-def share_final_chain(file_name,output_name):
-
-    final_writer_((row for row in share_format_struc_(format_data_(file_name))),output_name)
 
 if __name__ == '__main__':
 
